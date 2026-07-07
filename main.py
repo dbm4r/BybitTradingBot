@@ -2,6 +2,7 @@ from data.data_manager import DataManager
 from strategies.sma_crossover import SMACrossoverStrategy
 from backtesting.backtester import Backtester
 from backtesting.trade_logger import TradeLogger
+from core.settings import Settings
 
 manager = DataManager()
 
@@ -15,7 +16,13 @@ strategy = SMACrossoverStrategy()
 
 df = strategy.generate_signals(df)
 
-backtester = Backtester()
+settings = Settings()
+
+backtester = Backtester(
+    settings=settings,
+    symbol="BTCUSDT",
+    strategy_name="SMA Crossover"
+)
 
 trades = backtester.run(df)
 

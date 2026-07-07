@@ -26,3 +26,4 @@ class Trade:
     profit_percent: float
 
     duration: float
+    exit_reason: str

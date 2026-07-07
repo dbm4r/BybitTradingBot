@@ -1,14 +1,30 @@
 from backtesting.portfolio import Portfolio
 from backtesting.execution_engine import ExecutionEngine
 from backtesting.statistics import Statistics
+from core.settings import Settings
+from backtesting.equity_curve import EquityCurve
+from backtesting.performance.risk_metrics import RiskMetrics
+
 
 
 class Backtester:
 
-    def __init__(self, initial_balance=10000):
+    def __init__(
+    self, settings, symbol, strategy_name):
 
-        self.portfolio = Portfolio(initial_balance)
-        self.execution = ExecutionEngine(self.portfolio)
+        self.equity = EquityCurve()
+
+        self.settings = settings
+
+        self.portfolio = Portfolio(
+            settings.initial_balance
+        )
+
+        self.execution = ExecutionEngine(
+            self.portfolio,
+            settings,
+            symbol,
+            strategy_name)
 
         self.trades = []
 
@@ -20,11 +36,14 @@ class Backtester:
             price = row["close"]
             timestamp = row["timestamp"]
 
-            self.execution.process_signal(
-                signal=signal,
-                timestamp=timestamp,
-                price=price
-            )
+            self.execution.process_candle(row)
+
+            portfolio_value = self.portfolio.total_value(row["close"])
+
+            self.equity.add(
+                row["timestamp"],
+                portfolio_value)
+            
 
         # Close any remaining open position
         if self.portfolio.in_position():
@@ -33,14 +52,25 @@ class Backtester:
 
             self.execution.sell(
                 timestamp=last_row["timestamp"],
-                price=last_row["close"]
+                price=last_row["close"],
+                exit_reason="End of Backtest"
             )
 
+            self.equity.add(
+        last_row["timestamp"],
+        self.portfolio.total_value(last_row["close"]))
+
         self.trades = self.execution.trades
+
+        curve = self.equity.dataframe()
+        curve.to_csv("results/equity_curve.csv", index=False)
 
         return self.trades
 
     def print_report(self):
+
+        curve = self.equity.dataframe()
+        max_drawdown = RiskMetrics.max_drawdown(curve)
 
         total_profit = Statistics.total_profit(self.trades)
         total_trades = Statistics.total_trades(self.trades)
@@ -84,5 +114,6 @@ class Backtester:
 
         print(f"Average Win     : ${average_win:.2f}")
         print(f"Average Loss    : ${average_loss:.2f}")
+        print(f"Max Drawdown  : {max_drawdown:.2f}%")
 
         print("=====================================\n")

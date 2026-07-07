@@ -29,7 +29,8 @@ class TradeLogger:
 
                 "Profit %": trade.profit_percent,
 
-                "Duration (Hours)": trade.duration
+                "Duration (Hours)": trade.duration,
+                "Exit Reason": trade.exit_reason
             })
 
         df = pd.DataFrame(rows)
