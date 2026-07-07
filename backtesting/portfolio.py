@@ -11,6 +11,7 @@ class Portfolio:
         self.entry_price = None
         self.entry_time = None
         self.stop_price = None
+        self.take_profit_price = None
 
     def in_position(self):
 

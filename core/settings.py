@@ -11,5 +11,6 @@ class Settings:
     slippage: float = 0.0
 
     risk_per_trade: float = 0.02
-    
+
     stop_loss_percent: float = 0.01
+    take_profit_percent: float = 0.02

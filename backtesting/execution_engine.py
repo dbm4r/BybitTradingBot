@@ -2,6 +2,10 @@ from backtesting.trade import Trade
 from risk.stop_loss import StopLoss
 from risk.position_sizer import PositionSizer
 from risk.position_validator import PositionValidator
+from risk.stop_loss_engine import StopLossEngine
+from risk.take_profit import TakeProfit
+from risk.take_profit_engine import TakeProfitEngine
+
 
 
 class ExecutionEngine:
@@ -17,7 +21,7 @@ class ExecutionEngine:
         self.trades = []
         self.total_fees = 0
     
-    def buy(self, timestamp, price):
+    def buy(self, timestamp, price) -> None:
 
         fee = self.portfolio.cash * self.settings.trading_fee
 
@@ -28,6 +32,11 @@ class ExecutionEngine:
         stop_price = StopLoss.percentage(
             entry_price=price,
             stop_percent=self.settings.stop_loss_percent
+        )
+
+        take_profit_price = TakeProfit.percentage(
+            entry_price=price,
+            take_profit_percent=self.settings.take_profit_percent
         )
 
         quantity = PositionSizer.fixed_risk(
@@ -51,16 +60,18 @@ class ExecutionEngine:
         self.portfolio.entry_price = price
         self.portfolio.entry_time = timestamp
         self.portfolio.stop_price = stop_price
+        self.portfolio.take_profit_price = take_profit_price
 
-        print("\n========== BUY ==========")
+        print("\n========== BUY V2==========")
         print(f"Symbol        : {self.symbol}")
         print(f"Quantity      : {quantity:.6f}")
         print(f"Entry Price   : {price:.2f}")
         print(f"Position Cost : {position_cost:.2f}")
         print(f"Cash Left     : {self.portfolio.cash:.2f}")
-        print(f"Stop Price    : {stop_price:.2f}")
+        print(f"Stop Price        : {stop_price:.2f}")
+        print(f"Take Profit Price : {take_profit_price:.2f}")
         print("=========================\n")
-    def sell(self, timestamp, price, exit_reason):
+    def sell(self, timestamp, price, exit_reason) -> None:
 
 
         gross_exit_value = self.portfolio.position * price
@@ -124,15 +135,70 @@ class ExecutionEngine:
         self.portfolio.entry_price = None
         self.portfolio.entry_time = None
         self.portfolio.stop_price = None
+        self.portfolio.take_profit_price = None
     def process_candle(self, row):
+
+        # First check if an open trade should be closed by the stop loss
+        self.check_stop_loss(row)
+        self.check_take_profit(row)
+
         signal = row["signal"]
         timestamp = row["timestamp"]
         price = row["close"]
 
+        # Buy signal
         if signal == 1 and not self.portfolio.in_position():
 
             self.buy(timestamp, price)
 
+        # Sell signal
         elif signal == -1 and self.portfolio.in_position():
 
-            self.sell(timestamp, price, "Stop Loss")
+            self.sell(
+                timestamp,
+                price,
+                "Signal"
+            )
+
+    def check_stop_loss(self, row):
+
+        if not self.portfolio.in_position():
+            return
+
+        if StopLossEngine.is_triggered(
+            current_low=row["low"],
+            stop_price=self.portfolio.stop_price
+        ):
+
+            print("\n========== STOP LOSS ==========")
+            print(f"Market Low : {row['low']:.2f}")
+            print(f"Stop Price : {self.portfolio.stop_price:.2f}")
+            print("Position closed.")
+            print("===============================\n")
+
+            self.sell(
+                timestamp=row["timestamp"],
+                price=self.portfolio.stop_price,
+                exit_reason="Stop Loss"
+            )
+    def check_take_profit(self, row):
+
+        if not self.portfolio.in_position():
+            return
+
+        if TakeProfitEngine.is_triggered(
+            current_high=row["high"],
+            take_profit_price=self.portfolio.take_profit_price
+        ):
+
+            print("\n========== TAKE PROFIT ==========")
+            print(f"Market High : {row['high']:.2f}")
+            print(f"Target Price: {self.portfolio.take_profit_price:.2f}")
+            print("Position closed.")
+            print("=================================\n")
+
+            self.sell(
+                timestamp=row["timestamp"],
+                price=self.portfolio.take_profit_price,
+                exit_reason="Take Profit"
+            )

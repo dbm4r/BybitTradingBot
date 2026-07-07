@@ -4,6 +4,12 @@ from datetime import datetime
 
 @dataclass
 class Trade:
+    """
+    Represents one completed trade.
+
+    Stores all information about a position from
+    entry until exit.
+    """
 
     symbol: str
 
