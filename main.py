@@ -35,6 +35,11 @@ TradeLogger.export(
     trades,
     "results/trades.csv"
 )
+print("\nORDERS\n")
+
+for order in backtester.execution.order_manager.all_orders():
+
+    print(order)
 print(
     TakeProfit.percentage(
         60000,

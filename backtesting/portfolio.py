@@ -12,6 +12,8 @@ class Portfolio:
         self.entry_time = None
         self.stop_price = None
         self.take_profit_price = None
+        self.highest_price = None
+        self.break_even_active = False
 
     def in_position(self):
 

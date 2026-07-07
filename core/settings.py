@@ -14,3 +14,6 @@ class Settings:
 
     stop_loss_percent: float = 0.01
     take_profit_percent: float = 0.02
+
+    trailing_stop_percent: float = 0.01
+    break_even_trigger_percent: float = 0.01
