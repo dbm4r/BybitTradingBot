@@ -72,15 +72,20 @@ class EntryExecutor:
             price,
             timestamp
         )
+        position = engine.portfolio.get_position(
+            engine.symbol
+        )
 
         PortfolioService.open_position(
             portfolio=engine.portfolio,
+            position=position,
             quantity=quantity,
             price=price,
             timestamp=timestamp,
             cash_after_fee=cash_after_fee,
             stop_price=stop_price,
-            take_profit_price=take_profit_price)
+            take_profit_price=take_profit_price
+        )
         
         position_cost = quantity * price
 

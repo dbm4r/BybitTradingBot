@@ -13,6 +13,9 @@ class ExitExecutor:
         price,
         exit_reason
     ):
+        position = engine.portfolio.get_position(
+            engine.symbol
+        )
         price = SlippageCalculator.apply_sell(
             price=price,
             slippage_percent=engine.settings.slippage_percent
@@ -21,7 +24,7 @@ class ExitExecutor:
         order = MarketOrder(
             symbol=engine.symbol,
             side="SELL",
-            quantity=engine.portfolio.position,
+            quantity=position.quantity,
             timestamp=timestamp
         )
 
@@ -35,7 +38,7 @@ class ExitExecutor:
         )
 
         gross_exit_value = TradeCalculator.exit_value(
-            quantity=engine.portfolio.position,
+            quantity=position.quantity,
             exit_price=price
         )
 
@@ -52,8 +55,8 @@ class ExitExecutor:
         engine.total_fees += fee
 
         entry_value = TradeCalculator.entry_value(
-            quantity=engine.portfolio.position,
-            entry_price=engine.portfolio.entry_price
+            quantity=position.quantity,
+            entry_price=position.entry_price
         )
 
         gross_profit = TradeCalculator.gross_profit(
@@ -68,20 +71,20 @@ class ExitExecutor:
 
         duration = (
             timestamp
-            - engine.portfolio.entry_time
+            - position.entry_time
         ).total_seconds() / 3600
 
         trade = Trade(
             symbol=engine.symbol,
             strategy=engine.strategy_name,
 
-            entry_time=engine.portfolio.entry_time,
+            entry_time=position.entry_time,
             exit_time=timestamp,
 
-            entry_price=engine.portfolio.entry_price,
+            entry_price=position.entry_price,
             exit_price=price,
 
-            quantity=engine.portfolio.position,
+            quantity=position.quantity,
 
             gross_profit=gross_profit,
             fees=fee,
@@ -105,4 +108,8 @@ class ExitExecutor:
         print(f"Cash Received : {cash_received:.2f}")
         print("==========================\n")
 
-        PortfolioService.close_position(portfolio=engine.portfolio, cash_received=cash_received)
+        PortfolioService.close_position(
+            portfolio=engine.portfolio,
+            position=position,
+            cash_received=cash_received
+        )

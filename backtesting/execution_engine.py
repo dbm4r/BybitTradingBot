@@ -39,20 +39,21 @@ class ExecutionEngine:
         )
     def process_candle(self, row):
 
-        # First check if an open trade should be closed by the stop loss
         self.risk_manager.process(row)
 
         signal = row["signal"]
         timestamp = row["timestamp"]
         price = row["close"]
 
-        # Buy signal
-        if signal == 1 and not self.portfolio.in_position():
+        position = self.portfolio.get_position(
+            self.symbol
+        )
+
+        if signal == 1 and not position.is_open():
 
             self.buy(timestamp, price)
 
-        # Sell signal
-        elif signal == -1 and self.portfolio.in_position():
+        elif signal == -1 and position.is_open():
 
             self.sell(
                 timestamp,

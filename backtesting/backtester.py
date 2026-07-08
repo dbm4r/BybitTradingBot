@@ -49,7 +49,9 @@ class Backtester:
 
             engine.process_candle(row)
 
-            portfolio_value = self.portfolio.total_value(row["close"])
+            portfolio_value = self.portfolio.total_value(
+                self.symbol,
+                row["close"])
 
             self.equity.add(
                 row["timestamp"],
@@ -57,7 +59,7 @@ class Backtester:
             
 
         # Close any remaining open position
-        if self.portfolio.in_position():
+        if self.portfolio.in_position(self.symbol):
 
             last_row = df.iloc[-1]
 
