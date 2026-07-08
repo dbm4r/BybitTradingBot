@@ -3,10 +3,12 @@ from orders.order_status import OrderStatus
 from execution.entry_executor import EntryExecutor
 from execution.exit_executor import ExitExecutor
 from execution.execution_router import ExecutionRouter
+from orders.oco_manager import OCOManager
 
 class OrderManager:
 
     def __init__(self):
+        self.oco_manager = OCOManager()
 
         self.orders = []
 
@@ -26,6 +28,12 @@ class OrderManager:
     ):
 
         order.status = OrderStatus.FILLED
+        if hasattr(self, "oco_manager"):
+
+            self.oco_manager.on_order_filled(
+                order,
+                self
+            )
         order.filled_price = price
         order.filled_time = timestamp
 
@@ -62,6 +70,14 @@ class OrderManager:
     ):
 
         for order in self.pending():
+            if (
+                order.expires_at is not None
+                and row["timestamp"] >= order.expires_at
+            ):
+
+                order.expire()
+
+                continue
 
             if not order.should_fill(row):
                 continue
@@ -77,3 +93,10 @@ class OrderManager:
                 order=order,
                 row=row
             )
+    def cancel(self, order):
+
+        order.cancel()
+
+        print(
+            f"Order Cancelled : {order.side}"
+        )

@@ -3,10 +3,12 @@ from enum import Enum
 
 class OrderStatus(Enum):
 
-    PENDING = "Pending"
+    PENDING = "PENDING"
 
-    FILLED = "Filled"
+    FILLED = "FILLED"
 
-    CANCELLED = "Cancelled"
+    CANCELLED = "CANCELLED"
 
-    REJECTED = "Rejected"
+    REJECTED = "REJECTED"
+
+    EXPIRED = "EXPIRED"
