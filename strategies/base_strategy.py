@@ -4,9 +4,19 @@ import pandas as pd
 
 class BaseStrategy(ABC):
 
+    @property
     @abstractmethod
-    def generate_signals(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Generate trading signals.
-        """
+    def name(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def parameters(self) -> dict:
+        pass
+
+    @abstractmethod
+    def generate_signals(
+        self,
+        dataframe: pd.DataFrame
+    ) -> pd.DataFrame:
         pass

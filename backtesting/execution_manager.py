@@ -1,7 +1,6 @@
 from backtesting.execution_engine import ExecutionEngine
 
 
-
 class ExecutionManager:
 
     def __init__(self, portfolio, settings):
@@ -14,16 +13,22 @@ class ExecutionManager:
     def get_engine(
         self,
         symbol,
-        strategy_name
+        strategy
     ):
 
-        if symbol not in self.engines:
+        key = (
+            symbol,
+            strategy.name,
+            tuple(sorted(strategy.parameters.items()))
+        )
 
-            self.engines[symbol] = ExecutionEngine(
+        if key not in self.engines:
+
+            self.engines[key] = ExecutionEngine(
                 portfolio=self.portfolio,
                 settings=self.settings,
                 symbol=symbol,
-                strategy_name=strategy_name
+                strategy=strategy
             )
 
-        return self.engines[symbol]
+        return self.engines[key]

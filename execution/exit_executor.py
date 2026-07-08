@@ -80,7 +80,7 @@ class ExitExecutor:
 
         trade = Trade(
             symbol=engine.symbol,
-            strategy=engine.strategy_name,
+            strategy=engine.strategy.name,
 
             entry_time=position.entry_time,
             exit_time=timestamp,

@@ -6,6 +6,7 @@ from core.settings import Settings
 from core.config import Config
 
 
+
 def main():
 
     config = Config()
@@ -19,16 +20,19 @@ def main():
     )
 
     strategy = StrategyFactory.create(
-        config.strategy
+        config.strategy,
+        **config.strategy_parameters
         )
     df = strategy.generate_signals(df)
 
     settings = Settings()
 
+    
+
     backtester = Backtester(
         settings=settings,
-        symbol="BTCUSDT",
-        strategy_name="SMA Crossover"
+        symbol=config.symbol,
+        strategy=strategy
     )
 
     trades = backtester.run(df)

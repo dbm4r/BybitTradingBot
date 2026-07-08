@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -11,3 +11,10 @@ class Config:
     limit: int = 500
 
     strategy: str = "SMA"
+
+    strategy_parameters: dict = field(
+        default_factory=lambda: {
+            "fast_period": 20,
+            "slow_period": 50
+        }
+    )

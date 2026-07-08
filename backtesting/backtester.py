@@ -9,7 +9,7 @@ from backtesting.performance.risk_metrics import RiskMetrics
 
 class Backtester:
 
-    def __init__(self, settings, symbol, strategy_name):
+    def __init__(self, settings, symbol, strategy):
 
         self.settings = settings
 
@@ -24,12 +24,11 @@ class Backtester:
 
         self.engine = self.execution.get_engine(
             symbol,
-            strategy_name
+            strategy
         )
 
         self.symbol = symbol
-        self.strategy_name = strategy_name
-
+        self.strategy = strategy
         self.equity = EquityCurve()
 
         self.trades = []
@@ -70,8 +69,12 @@ class Backtester:
             )
 
             self.equity.add(
-        last_row["timestamp"],
-        self.portfolio.total_value(last_row["close"]))
+                last_row["timestamp"],
+                self.portfolio.total_value(
+                    self.symbol,
+                    last_row["close"]
+                )
+            )
 
         self.trades = engine.trades
 
@@ -98,7 +101,7 @@ class Backtester:
 
         engine = self.execution.get_engine(
             self.symbol,
-            self.strategy_name
+            self.strategy
         )
 
         fees = engine.total_fees

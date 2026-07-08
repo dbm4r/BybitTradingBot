@@ -3,19 +3,21 @@ from strategies.sma_crossover import SMACrossoverStrategy
 
 class StrategyFactory:
 
-    @staticmethod
-    def create(name: str):
+    _strategies = {
+        "SMA": SMACrossoverStrategy,
+    }
 
-        strategies = {
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        **kwargs
+    ):
 
-            "SMA": SMACrossoverStrategy,
-
-        }
-
-        if name not in strategies:
+        if name not in cls._strategies:
 
             raise ValueError(
                 f"Unknown strategy: {name}"
             )
 
-        return strategies[name]()
+        return cls._strategies[name](**kwargs)

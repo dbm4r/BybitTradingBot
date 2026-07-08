@@ -11,12 +11,12 @@ from events.event_names import EventNames
 
 class ExecutionEngine:
 
-    def __init__(self, portfolio, settings, symbol, strategy_name):
+    def __init__(self, portfolio, settings, symbol, strategy):
         self.portfolio = portfolio
         self.settings = settings
 
         self.symbol = symbol
-        self.strategy_name = strategy_name
+        self.strategy = strategy
 
         self.trades = []
         self.total_fees = 0

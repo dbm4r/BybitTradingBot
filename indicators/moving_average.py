@@ -1,20 +1,37 @@
 import pandas as pd
+
 from indicators.base_indicator import BaseIndicator
 
 
 class SimpleMovingAverage(BaseIndicator):
 
     def __init__(self, period: int):
+
         self.period = period
 
-    def calculate(self, df: pd.DataFrame):
+    @property
+    def name(self) -> str:
+
+        return "Simple Moving Average"
+
+    @property
+    def parameters(self) -> dict:
+
+        return {
+            "period": self.period
+        }
+
+    def calculate(
+        self,
+        dataframe: pd.DataFrame
+    ) -> pd.DataFrame:
 
         column_name = f"SMA_{self.period}"
 
-        df[column_name] = (
-            df["close"]
+        dataframe[column_name] = (
+            dataframe["close"]
             .rolling(window=self.period)
             .mean()
         )
 
-        return df
+        return dataframe
