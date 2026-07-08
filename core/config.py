@@ -10,4 +10,6 @@ class Config:
 
     limit: int = 500
 
-    strategy: str = "EMA"
+    strategy: str = "SMA"
+
+    mode: str = "single"

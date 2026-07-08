@@ -85,56 +85,21 @@ class Backtester:
 
     def print_report(self):
 
-        curve = self.equity.dataframe()
-        max_drawdown = RiskMetrics.max_drawdown(curve)
+        print("\n========== STRATEGY COMPARISON ==========\n")
 
-        total_profit = Statistics.total_profit(self.trades)
-        total_trades = Statistics.total_trades(self.trades)
-
-        winners = Statistics.winning_trades(self.trades)
-        losers = Statistics.losing_trades(self.trades)
-
-        win_rate = Statistics.win_rate(self.trades)
-
-        average_win = Statistics.average_win(self.trades)
-        average_loss = Statistics.average_loss(self.trades)
-
-        engine = self.execution.get_engine(
-            self.symbol,
-            self.strategy
+        ranked = sorted(
+            self.results,
+            key=lambda result: result.roi,
+            reverse=True
         )
 
-        fees = engine.total_fees
+        for result in ranked:
 
-        final_balance = self.portfolio.cash
-
-        roi = (
-            (final_balance - self.portfolio.initial_balance)
-            / self.portfolio.initial_balance
-        ) * 100
-
-        print("\n========== BACKTEST REPORT ==========")
-
-        print(f"Initial Balance : ${self.portfolio.initial_balance:,.2f}")
-        print(f"Final Balance   : ${final_balance:,.2f}")
-
-        print()
-
-        print(f"Net Profit      : ${total_profit:,.2f}")
-        print(f"Trading Fees   : ${fees:,.2f}")
-        print(f"Return          : {roi:.2f}%")
-
-        print()
-
-        print(f"Trades          : {total_trades}")
-        print(f"Winners         : {winners}")
-        print(f"Losers          : {losers}")
-        print(f"Win Rate        : {win_rate:.2f}%")
-
-        print()
-
-        print(f"Average Win     : ${average_win:.2f}")
-        print(f"Average Loss    : ${average_loss:.2f}")
-        print(f"Max Drawdown  : {max_drawdown:.2f}%")
-
-        print("=====================================\n")
+            print(
+                f"{result.strategy:<20}"
+                f"ROI {result.roi:>8.2f}%   "
+                f"Profit ${result.net_profit:>10.2f}   "
+                f"Win {result.win_rate:>6.2f}%   "
+                f"Trades {result.trades:>4}   "
+                f"DD {result.max_drawdown:>7.2f}%"
+            )
