@@ -10,4 +10,4 @@ class Config:
 
     limit: int = 500
 
-    strategy: str = "RSI"
+    strategy: str = "EMA"
