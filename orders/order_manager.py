@@ -23,23 +23,31 @@ class OrderManager:
     def fill(
         self,
         order,
+        quantity,
         price,
         timestamp
     ):
-
-        order.status = OrderStatus.FILLED
-        if hasattr(self, "oco_manager"):
-
-            self.oco_manager.on_order_filled(
-                order,
-                self
-            )
         order.filled_price = price
         order.filled_time = timestamp
 
+        order.filled_quantity += quantity
+
+        order.remaining_quantity -= quantity
+
+        if order.remaining_quantity <= 0:
+
+            order.remaining_quantity = 0
+            order.status = OrderStatus.FILLED
+
+        else:
+
+            order.status = OrderStatus.PARTIALLY_FILLED
+
         print(
             f"Order Filled : "
-            f"{order.side} @ {price:.2f}"
+            f"{order.side} "
+            f"{quantity:.6f} @ "
+            f"{price:.2f}"
         )
 
         return order
@@ -84,6 +92,7 @@ class OrderManager:
 
             self.fill(
                 order,
+                order.remaining_quantity,
                 order.execution_price,
                 row["timestamp"]
             )

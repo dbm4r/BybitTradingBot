@@ -67,6 +67,7 @@ class EntryExecutor:
 
         engine.order_manager.fill(
             order,
+            order.remaining_quantity,
             price,
             timestamp
         )

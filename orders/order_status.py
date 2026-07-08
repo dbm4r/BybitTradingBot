@@ -12,3 +12,4 @@ class OrderStatus(Enum):
     REJECTED = "REJECTED"
 
     EXPIRED = "EXPIRED"
+    PARTIALLY_FILLED = "PARTIALLY_FILLED"

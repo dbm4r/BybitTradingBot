@@ -18,6 +18,13 @@ class Order(ABC):
 
     filled_price: float | None = None
     filled_time: datetime | None = None
+    filled_quantity: float = 0
+
+    remaining_quantity: float = 0
+
+    def __post_init__(self):
+
+        self.remaining_quantity = self.quantity
 
     @abstractmethod
     def should_fill(self, row) -> bool:
@@ -27,3 +34,4 @@ class Order(ABC):
     @abstractmethod
     def execution_price(self):
         pass
+    
