@@ -1,7 +1,7 @@
 from data.data_manager import DataManager
 from strategies.strategy_factory import StrategyFactory
 from backtesting.backtester import Backtester
-from backtesting.trade_logger import TradeLogger
+from backtesting.performance.trade_logger import TradeLogger
 from core.settings import Settings
 from core.config import Config
 
