@@ -28,9 +28,13 @@ class ExitExecutor:
             timestamp=timestamp
         )
 
-        engine.order_manager.submit(order)
+        engine.order_manager.submit(
+            engine,
+            order
+        )
 
         engine.order_manager.fill(
+            engine,
             order,
             order.remaining_quantity,
             price,

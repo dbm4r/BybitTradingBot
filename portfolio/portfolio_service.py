@@ -14,26 +14,19 @@ class PortfolioService:
         take_profit_price
     ):
         PositionManager.open(
-            position,
-            quantity,
-            price,
-            timestamp
+            position=position,
+            quantity=quantity,
+            entry_price=price,
+            entry_time=timestamp,
+            stop_price=stop_price,
+            take_profit_price=take_profit_price
         )
 
         position_cost = quantity * price
 
-
         portfolio.cash = (
             cash_after_fee - position_cost
         )
-
-        position.stop_price = stop_price
-        position.take_profit_price = take_profit_price
-
-        position.highest_price = price
-
-        position.break_even_active = False
-        position.trailing_active = False
     @staticmethod
     def close_position(
         portfolio,

@@ -23,7 +23,10 @@ class EntryExecutor:
             timestamp=timestamp
         )
 
-        engine.order_manager.submit(order)
+        engine.order_manager.submit(
+            engine,
+            order
+        )
 
         fee = (
             engine.portfolio.cash
@@ -67,6 +70,7 @@ class EntryExecutor:
         order.remaining_quantity = quantity
 
         engine.order_manager.fill(
+            engine,
             order,
             order.remaining_quantity,
             price,

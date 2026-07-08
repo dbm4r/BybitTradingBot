@@ -2,6 +2,9 @@ from risk.risk_manager import RiskManager
 from orders.order_manager import OrderManager
 from execution.entry_executor import EntryExecutor
 from execution.exit_executor import ExitExecutor
+from events.event_bus import EventBus
+from events.event_names import EventNames
+
 
 
 
@@ -9,7 +12,6 @@ from execution.exit_executor import ExitExecutor
 class ExecutionEngine:
 
     def __init__(self, portfolio, settings, symbol, strategy_name):
-
         self.portfolio = portfolio
         self.settings = settings
 
@@ -19,7 +21,22 @@ class ExecutionEngine:
         self.trades = []
         self.total_fees = 0
         self.risk_manager = RiskManager(self)
+        self.events = EventBus()
         self.order_manager = OrderManager()
+        self.events.subscribe(
+            EventNames.ORDER_SUBMITTED,
+            lambda order: print(
+                f"[EVENT] Order Submitted: {order.side}"
+            )
+        )
+        self.events.subscribe(
+            EventNames.ORDER_FILLED,
+            lambda order: print(
+                f"[EVENT] Order Filled: "
+                f"{order.side} "
+                f"{order.filled_quantity:.6f}"
+            )
+        )
     
     def buy(self, timestamp, price) -> None:
 

@@ -1,9 +1,7 @@
 from orders.order_status import OrderStatus
-from orders.order_status import OrderStatus
-from execution.entry_executor import EntryExecutor
-from execution.exit_executor import ExitExecutor
 from execution.execution_router import ExecutionRouter
 from orders.oco_manager import OCOManager
+from events.event_names import EventNames
 
 class OrderManager:
 
@@ -12,7 +10,11 @@ class OrderManager:
 
         self.orders = []
 
-    def submit(self, order):
+    def submit(self, engine, order):
+        engine.events.publish(
+            EventNames.ORDER_SUBMITTED,
+            order
+        )
 
         self.orders.append(order)
 
@@ -22,6 +24,7 @@ class OrderManager:
 
     def fill(
         self,
+        engine,
         order,
         quantity,
         price,
@@ -38,6 +41,10 @@ class OrderManager:
 
             order.remaining_quantity = 0
             order.status = OrderStatus.FILLED
+            engine.events.publish(
+                EventNames.ORDER_FILLED,
+                order
+            )
 
         else:
 
@@ -54,8 +61,16 @@ class OrderManager:
     def all_orders(self):
 
         return self.orders
-    def submit_pending(self, order):
+    def submit_pending(
+        self,
+        engine,
+        order
+    ):
 
+        engine.events.publish(
+            EventNames.ORDER_SUBMITTED,
+            order
+        )
 
         self.orders.append(order)
 
@@ -93,6 +108,7 @@ class OrderManager:
             self.fill(
                 order,
                 order.remaining_quantity,
+                execution_engine,
                 order.execution_price,
                 row["timestamp"]
             )
