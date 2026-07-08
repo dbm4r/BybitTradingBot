@@ -20,8 +20,7 @@ def main():
     )
 
     strategy = StrategyFactory.create(
-        config.strategy,
-        **config.strategy_parameters
+        config.strategy
         )
     df = strategy.generate_signals(df)
 

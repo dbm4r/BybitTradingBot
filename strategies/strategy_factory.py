@@ -1,10 +1,12 @@
 from strategies.sma_crossover import SMACrossoverStrategy
+from strategies.rsi_strategy import RSIStrategy
 
 
 class StrategyFactory:
 
     _strategies = {
         "SMA": SMACrossoverStrategy,
+        "RSI": RSIStrategy,
     }
 
     @classmethod
@@ -20,4 +22,6 @@ class StrategyFactory:
                 f"Unknown strategy: {name}"
             )
 
-        return cls._strategies[name](**kwargs)
+        strategy_class = cls._strategies[name]
+
+        return strategy_class(**kwargs)

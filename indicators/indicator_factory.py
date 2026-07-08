@@ -1,10 +1,12 @@
 from indicators.moving_average import SimpleMovingAverage
+from indicators.rsi import RelativeStrengthIndex
 
 
 class IndicatorFactory:
 
     _indicators = {
         "SMA": SimpleMovingAverage,
+        "RSI": RelativeStrengthIndex,
     }
 
     @classmethod
