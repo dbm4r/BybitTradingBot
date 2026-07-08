@@ -64,6 +64,7 @@ class EntryExecutor:
         )
 
         order.quantity = quantity
+        order.remaining_quantity = quantity
 
         engine.order_manager.fill(
             order,
