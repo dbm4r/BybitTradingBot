@@ -26,10 +26,16 @@ class RiskManager:
 
         self.update_highest_price(row)
 
-        if self.execution.portfolio.highest_price > old_high:
-            self.check_trailing_stop()
+        made_new_high = (
+            self.execution.portfolio.highest_price > old_high
+        )
 
         self.check_break_even()
+
+        self.check_trailing_activation()
+
+        if made_new_high:
+            self.check_trailing_stop()
 
         self.check_stop_loss(row)
 
@@ -76,7 +82,7 @@ class RiskManager:
     def check_trailing_stop(self):
 
         portfolio = self.execution.portfolio
-        if not portfolio.break_even_active:
+        if not portfolio.trailing_active:
             return
 
         new_stop = TrailingStop.calculate(
@@ -85,15 +91,16 @@ class RiskManager:
             trailing_percent=self.execution.settings.trailing_stop_percent
         )
 
-        if new_stop > portfolio.stop_price:
+        if new_stop <= portfolio.stop_price:
+            return
 
-            print("\n========== TRAILING STOP ==========")
-            print(f"Highest Price : {portfolio.highest_price:.2f}")
-            print(f"Old Stop      : {portfolio.stop_price:.2f}")
-            print(f"New Stop      : {new_stop:.2f}")
-            print("===================================\n")
+        print("\n========== TRAILING STOP ==========")
+        print(f"Highest Price : {portfolio.highest_price:.2f}")
+        print(f"Old Stop      : {portfolio.stop_price:.2f}")
+        print(f"New Stop      : {new_stop:.2f}")
+        print("===================================\n")
 
-            portfolio.stop_price = new_stop
+        portfolio.stop_price = new_stop
     def check_break_even(self):
 
         portfolio = self.execution.portfolio
@@ -114,4 +121,24 @@ class RiskManager:
             print("\n========== BREAK EVEN ==========")
             print(f"Entry Price : {portfolio.entry_price:.2f}")
             print(f"New Stop    : {portfolio.stop_price:.2f}")
+            print("================================\n")
+    
+    def check_trailing_activation(self):
+
+        position = self.execution.portfolio
+
+        if position.trailing_active:
+            return
+
+        if TrailingStop.should_activate(
+            entry_price=position.entry_price,
+            highest_price=position.highest_price,
+            trigger_percent=self.execution.settings.trailing_activation_percent
+        ):
+
+            position.trailing_active = True
+
+            print("\n====== TRAILING ACTIVATED ======")
+            print(f"Highest Price : {position.highest_price:.2f}")
+            print("Trailing Stop Enabled")
             print("================================\n")

@@ -1,5 +1,8 @@
 from orders.order_status import OrderStatus
-
+from orders.order_status import OrderStatus
+from execution.entry_executor import EntryExecutor
+from execution.exit_executor import ExitExecutor
+from execution.execution_router import ExecutionRouter
 
 class OrderManager:
 
@@ -35,3 +38,42 @@ class OrderManager:
     def all_orders(self):
 
         return self.orders
+    def submit_pending(self, order):
+
+
+        self.orders.append(order)
+
+        print(
+            f"Pending Limit Order @ {order.limit_price:.2f}"
+        )
+
+        return order
+    def pending(self):
+
+        return [
+            order
+            for order in self.orders
+            if order.status == OrderStatus.PENDING
+        ]
+    def process_pending_orders(
+        self,
+        execution_engine,
+        row
+    ):
+
+        for order in self.pending():
+
+            if not order.should_fill(row):
+                continue
+
+            self.fill(
+                order,
+                order.execution_price,
+                row["timestamp"]
+            )
+
+            ExecutionRouter.execute(
+                engine=execution_engine,
+                order=order,
+                row=row
+            )

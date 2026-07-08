@@ -1,5 +1,5 @@
 from backtesting.portfolio import Portfolio
-from backtesting.execution_engine import ExecutionEngine
+from backtesting.execution_manager import ExecutionManager
 from backtesting.statistics import Statistics
 from core.settings import Settings
 from backtesting.equity_curve import EquityCurve
@@ -9,10 +9,7 @@ from backtesting.performance.risk_metrics import RiskMetrics
 
 class Backtester:
 
-    def __init__(
-    self, settings, symbol, strategy_name):
-
-        self.equity = EquityCurve()
+    def __init__(self, settings, symbol, strategy_name):
 
         self.settings = settings
 
@@ -20,23 +17,37 @@ class Backtester:
             settings.initial_balance
         )
 
-        self.execution = ExecutionEngine(
-            self.portfolio,
-            settings,
+        self.execution = ExecutionManager(
+            portfolio=self.portfolio,
+            settings=settings
+        )
+
+        self.engine = self.execution.get_engine(
             symbol,
-            strategy_name)
+            strategy_name
+        )
+
+        self.symbol = symbol
+        self.strategy_name = strategy_name
+
+        self.equity = EquityCurve()
 
         self.trades = []
 
     def run(self, df):
+
+        engine = self.engine
 
         for _, row in df.iterrows():
 
             signal = row["signal"]
             price = row["close"]
             timestamp = row["timestamp"]
+            engine.order_manager.process_pending_orders(
+                engine,
+                row)
 
-            self.execution.process_candle(row)
+            engine.process_candle(row)
 
             portfolio_value = self.portfolio.total_value(row["close"])
 
@@ -50,7 +61,7 @@ class Backtester:
 
             last_row = df.iloc[-1]
 
-            self.execution.sell(
+            engine.sell(
                 timestamp=last_row["timestamp"],
                 price=last_row["close"],
                 exit_reason="End of Backtest"
@@ -60,7 +71,7 @@ class Backtester:
         last_row["timestamp"],
         self.portfolio.total_value(last_row["close"]))
 
-        self.trades = self.execution.trades
+        self.trades = engine.trades
 
         curve = self.equity.dataframe()
         curve.to_csv("results/equity_curve.csv", index=False)
@@ -83,7 +94,12 @@ class Backtester:
         average_win = Statistics.average_win(self.trades)
         average_loss = Statistics.average_loss(self.trades)
 
-        fees = self.execution.total_fees
+        engine = self.execution.get_engine(
+            self.symbol,
+            self.strategy_name
+        )
+
+        fees = engine.total_fees
 
         final_balance = self.portfolio.cash
 

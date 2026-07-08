@@ -5,7 +5,7 @@ import pandas as pd
 class BaseStrategy(ABC):
 
     @abstractmethod
-    def generate_signals(self, df: pd.DataFrame):
+    def generate_signals(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Generate trading signals.
         """

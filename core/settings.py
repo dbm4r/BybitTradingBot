@@ -7,8 +7,7 @@ class Settings:
     initial_balance: float = 10000
 
     trading_fee: float = 0.00055
-
-    slippage: float = 0.0
+    slippage_percent: float = 0.0005
 
     risk_per_trade: float = 0.02
 
@@ -17,3 +16,5 @@ class Settings:
 
     trailing_stop_percent: float = 0.01
     break_even_trigger_percent: float = 0.01
+    trailing_activation_percent: float = 0.02
+    

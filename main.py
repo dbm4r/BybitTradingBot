@@ -1,51 +1,46 @@
 from data.data_manager import DataManager
-from strategies.sma_crossover import SMACrossoverStrategy
+from strategies.strategy_factory import StrategyFactory
 from backtesting.backtester import Backtester
 from backtesting.trade_logger import TradeLogger
 from core.settings import Settings
-from risk.take_profit import TakeProfit
-import backtesting.execution_engine
+from core.config import Config
 
-print(backtesting.execution_engine.__file__)
 
-manager = DataManager()
+def main():
 
-df = manager.download_historical_data(
-    symbol="BTCUSDT",
-    interval="60",
-    limit=500
-)
+    config = Config()
 
-strategy = SMACrossoverStrategy()
+    manager = DataManager()
 
-df = strategy.generate_signals(df)
-
-settings = Settings()
-
-backtester = Backtester(
-    settings=settings,
-    symbol="BTCUSDT",
-    strategy_name="SMA Crossover"
-)
-
-trades = backtester.run(df)
-
-backtester.print_report()
-TradeLogger.export(
-    trades,
-    "results/trades.csv"
-)
-print("\nORDERS\n")
-
-for order in backtester.execution.order_manager.all_orders():
-
-    print(order)
-print(
-    TakeProfit.percentage(
-        60000,
-        0.02
+    df = manager.download_historical_data(
+        symbol=config.symbol,
+        interval=config.interval,
+        limit=config.limit
     )
-)
 
-print("Trades exported successfully.")
-print(df.columns)
+    strategy = StrategyFactory.create(
+        config.strategy
+        )
+    df = strategy.generate_signals(df)
+
+    settings = Settings()
+
+    backtester = Backtester(
+        settings=settings,
+        symbol="BTCUSDT",
+        strategy_name="SMA Crossover"
+    )
+
+    trades = backtester.run(df)
+
+    backtester.print_report()
+
+    TradeLogger.export(
+        trades,
+        "results/trades.csv",
+       
+    )
+
+
+if __name__ == "__main__":
+    main()
