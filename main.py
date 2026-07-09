@@ -7,7 +7,7 @@ from core.settings import Settings
 from core.config import Config
 from optimization.optimizer import Optimizer
 from optimization.parameter_grid import ParameterGrid
-from exchange.exchange_factory import ExchangeFactory
+
 
 def run_single_backtest(
     config,
@@ -102,15 +102,6 @@ def run_strategy_comparison(
 def main():
 
     config = Config()
-    exchange = ExchangeFactory.create(
-        config.exchange
-    )
-
-    exchange.place_market_order(
-        symbol="BTCUSDT",
-        side="BUY",
-        quantity=0.01
-    )
 
     manager = DataManager()
 
