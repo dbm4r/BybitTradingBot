@@ -1,24 +1,67 @@
+from execution.fill_processor import FillProcessor
+
+
 class ExecutionCoordinator:
 
     @staticmethod
-    def execute_market_order(
+    def process_entry(
         engine,
         order,
-        price,
+        exchange_result,
         timestamp,
-        on_fill
+        price,
+        quantity,
+        cash_after_fee,
+        stop_price,
+        take_profit_price
     ):
 
-        result = engine.exchange.place_market_order(
-            symbol=order.symbol,
-            side=order.side,
-            quantity=order.quantity,
-            price=price
+        if not exchange_result.success:
+            raise RuntimeError(
+                exchange_result.error
+            )
+
+        order.exchange_order_id = (
+            exchange_result.order.order_id
         )
 
-        if not result.success:
-            raise RuntimeError(result.error)
+        FillProcessor.process_entry_fill(
+            engine=engine,
+            order=order,
+            timestamp=timestamp,
+            price=price,
+            quantity=quantity,
+            cash_after_fee=cash_after_fee,
+            stop_price=stop_price,
+            take_profit_price=take_profit_price
+        )
 
-        order.exchange_order_id = result.order.order_id
+    @staticmethod
+    def process_exit(
+        engine,
+        order,
+        exchange_result,
+        timestamp,
+        price,
+        exit_reason
+    ):
 
-        on_fill()
+        if not exchange_result.success:
+            raise RuntimeError(
+                exchange_result.error
+            )
+
+        order.exchange_order_id = (
+            exchange_result.order.order_id
+        )
+        engine.execution_state.pending_orders[
+            order.exchange_order_id
+        ] = order
+
+        FillProcessor.process_exit_fill(
+            engine=engine,
+            order=order,
+            timestamp=timestamp,
+            price=price,
+            exit_reason=exit_reason
+        )

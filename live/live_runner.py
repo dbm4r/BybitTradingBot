@@ -40,6 +40,9 @@ class LiveRunner:
                     interval=str(self.interval)
                 )
 
+                if dataframe is None:
+                    continue
+
                 dataframe = self.strategy.generate_signals(
                     dataframe
                 )

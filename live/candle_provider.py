@@ -10,6 +10,7 @@ class CandleProvider:
 
         self.client = client
         self.dataframe = None
+        self.last_timestamp = None
 
     def latest_candle(
         self,
@@ -83,6 +84,12 @@ class CandleProvider:
             symbol=symbol,
             interval=interval
         )
+        timestamp = candle["timestamp"]
+
+        if timestamp == self.last_timestamp:
+            return None
+
+        self.last_timestamp = timestamp
 
         self.dataframe = pd.concat(
             [

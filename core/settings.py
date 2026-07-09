@@ -26,7 +26,7 @@ class Settings:
     trailing_activation_percent: float = 0.02
 
     # Exchange
-    exchange: str = os.getenv("EXCHANGE", "PAPER")
+    exchange: str = os.getenv("EXCHANGE", "BYBIT")
 
     # Bybit
     api_key: str = os.getenv("BYBIT_API_KEY", "xdRbOU4VvVZcwxOcEG")

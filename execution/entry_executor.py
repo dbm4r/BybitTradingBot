@@ -4,7 +4,7 @@ from risk.take_profit import TakeProfit
 from risk.position_sizer import PositionSizer
 from risk.position_validator import PositionValidator
 from finance.slippage_calculator import SlippageCalculator
-from execution.fill_processor import FillProcessor
+from execution.execution_coordinator import ExecutionCoordinator
 
 class EntryExecutor:
 
@@ -35,8 +35,6 @@ class EntryExecutor:
         if not result.success:
             raise RuntimeError(result.error)
 
-        exchange_order = result.order
-        order.exchange_order_id = exchange_order.order_id
 
         fee = (
             engine.portfolio.cash
@@ -79,9 +77,10 @@ class EntryExecutor:
         order.quantity = quantity
         order.remaining_quantity = quantity
 
-        FillProcessor.process_entry_fill(
+        ExecutionCoordinator.process_entry(
             engine=engine,
             order=order,
+            exchange_result=result,
             timestamp=timestamp,
             price=price,
             quantity=quantity,

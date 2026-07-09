@@ -1,6 +1,6 @@
 from orders.market_order import MarketOrder
 from finance.slippage_calculator import SlippageCalculator
-from execution.fill_processor import FillProcessor
+from execution.execution_coordinator import ExecutionCoordinator
 class ExitExecutor:
 
     @staticmethod
@@ -38,13 +38,11 @@ class ExitExecutor:
         if not result.success:
             raise RuntimeError(result.error)
 
-        exchange_order = result.order
 
-        order.exchange_order_id = exchange_order.order_id
-
-        FillProcessor.process_exit_fill(
+        ExecutionCoordinator.process_exit(
             engine=engine,
             order=order,
+            exchange_result=result,
             timestamp=timestamp,
             price=price,
             exit_reason=exit_reason

@@ -5,7 +5,11 @@ from execution.exit_executor import ExitExecutor
 from events.event_bus import EventBus
 from events.event_names import EventNames
 from exchange.exchange_factory import ExchangeFactory
-
+from execution.execution_state import ExecutionState
+from execution.execution_listener import ExecutionListener
+from exchange.exchange_synchronizer import (
+    ExchangeSynchronizer
+)
 
 
 
@@ -28,6 +32,13 @@ class ExecutionEngine:
         self.risk_manager = RiskManager(self)
         self.events = EventBus()
         self.order_manager = OrderManager()
+        self.execution_state = ExecutionState()
+        self.execution_listener = ExecutionListener(
+            self
+        )
+        self.synchronizer = ExchangeSynchronizer(
+            self
+        )
         self.events.subscribe(
             EventNames.ORDER_SUBMITTED,
             lambda order: print(
