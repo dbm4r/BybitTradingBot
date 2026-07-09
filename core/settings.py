@@ -17,4 +17,5 @@ class Settings:
     trailing_stop_percent: float = 0.01
     break_even_trigger_percent: float = 0.01
     trailing_activation_percent: float = 0.02
+    exchange: str = "PAPER"
     

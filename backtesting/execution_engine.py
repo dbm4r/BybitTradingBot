@@ -4,6 +4,7 @@ from execution.entry_executor import EntryExecutor
 from execution.exit_executor import ExitExecutor
 from events.event_bus import EventBus
 from events.event_names import EventNames
+from exchange.exchange_factory import ExchangeFactory
 
 
 
@@ -14,6 +15,9 @@ class ExecutionEngine:
     def __init__(self, portfolio, settings, symbol, strategy):
         self.portfolio = portfolio
         self.settings = settings
+        self.exchange = ExchangeFactory.create(
+            settings.exchange
+        )
 
         self.symbol = symbol
         self.strategy = strategy
@@ -37,6 +41,7 @@ class ExecutionEngine:
                 f"{order.filled_quantity:.6f}"
             )
         )
+        
     
     def buy(self, timestamp, price) -> None:
 

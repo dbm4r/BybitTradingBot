@@ -15,4 +15,3 @@ class Config:
     mode: str = "optimization"
     # mode: str = "single"
     # mode: str = "comparison"
-    exchange: str = "PAPER"

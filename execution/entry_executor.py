@@ -27,6 +27,11 @@ class EntryExecutor:
             engine,
             order
         )
+        engine.exchange.place_market_order(
+            symbol=order.symbol,
+            side=order.side,
+            quantity=order.quantity
+        )
 
         fee = (
             engine.portfolio.cash

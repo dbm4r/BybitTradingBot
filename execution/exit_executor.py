@@ -32,6 +32,11 @@ class ExitExecutor:
             engine,
             order
         )
+        engine.exchange.place_market_order(
+            symbol=order.symbol,
+            side=order.side,
+            quantity=order.quantity
+        )
 
         engine.order_manager.fill(
             engine,

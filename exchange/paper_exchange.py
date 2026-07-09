@@ -15,6 +15,13 @@ class PaperExchange(Exchange):
             f"{quantity:.6f} {symbol}"
         )
 
+        return {
+            "symbol": symbol,
+            "side": side,
+            "quantity": quantity,
+            "status": "FILLED"
+        }
+
     def place_limit_order(
         self,
         symbol,
