@@ -1,4 +1,4 @@
-from backtesting.backtester import Backtester
+from backtesting.runner.backtest_runner import BacktestRunner
 from backtesting.comparison.comparison_result import ComparisonResult
 from backtesting.performance.statistics import Statistics
 from backtesting.performance.risk_metrics import RiskMetrics
@@ -13,8 +13,10 @@ class ComparisonRunner:
         symbol
     ):
 
-        self.settings = settings
-        self.symbol = symbol
+        self.runner = BacktestRunner(
+            settings=settings,
+            symbol=symbol
+        )
 
         self.results = []
 
@@ -32,22 +34,9 @@ class ComparisonRunner:
                 f"\nRunning {strategy.name}..."
             )
 
-            strategy_dataframe = dataframe.copy()
-
-            strategy_dataframe = (
-                strategy.generate_signals(
-                    strategy_dataframe
-                )
-            )
-
-            backtester = Backtester(
-                settings=self.settings,
-                symbol=self.symbol,
-                strategy=strategy
-            )
-
-            trades = backtester.run(
-                strategy_dataframe
+            backtester, trades = self.runner.run(
+                dataframe,
+                strategy
             )
 
             curve = backtester.equity.dataframe()
