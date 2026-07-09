@@ -1,21 +1,30 @@
 from exchange.paper_exchange import PaperExchange
+from bybit.bybit_client import BybitClient
+from bybit.bybit_exchange import BybitExchange
 
 
 class ExchangeFactory:
 
     @staticmethod
-    def create(name: str):
+    def create(
+        name,
+        settings=None
+    ):
 
-        exchanges = {
+        if name == "PAPER":
 
-            "PAPER": PaperExchange,
+            return PaperExchange()
 
-        }
+        if name == "BYBIT":
 
-        if name not in exchanges:
-
-            raise ValueError(
-                f"Unknown exchange: {name}"
+            client = BybitClient(
+                api_key="",
+                api_secret="",
+                base_url=""
             )
 
-        return exchanges[name]()
+            return BybitExchange(client)
+
+        raise ValueError(
+            f"Unknown exchange: {name}"
+        )

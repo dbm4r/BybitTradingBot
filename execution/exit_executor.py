@@ -32,11 +32,16 @@ class ExitExecutor:
             engine,
             order
         )
-        exchange_order = engine.exchange.place_market_order(
+        result = engine.exchange.place_market_order(
             symbol=order.symbol,
             side=order.side,
             quantity=order.quantity
         )
+
+        if not result.success:
+            raise RuntimeError(result.error)
+
+        exchange_order = result.order
 
         engine.order_manager.fill(
             engine,

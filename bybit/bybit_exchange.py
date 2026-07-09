@@ -17,7 +17,7 @@ class BybitExchange(Exchange):
         quantity
     ):
 
-        pass
+        raise NotImplementedError
 
     def place_limit_order(
         self,
@@ -27,23 +27,23 @@ class BybitExchange(Exchange):
         price
     ):
 
-        pass
+        raise NotImplementedError
 
     def cancel_order(
         self,
         order_id
     ):
 
-        pass
+        raise NotImplementedError
 
     def get_balance(self):
 
-        pass
+        raise NotImplementedError
 
     def get_positions(self):
 
-        pass
+        raise NotImplementedError
 
     def get_open_orders(self):
 
-        pass
+        raise NotImplementedError
