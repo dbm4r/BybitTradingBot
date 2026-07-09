@@ -1,8 +1,5 @@
-from pprint import pprint
-
 from bybit.bybit_client import BybitClient
 from live.candle_provider import CandleProvider
-
 
 client = BybitClient(
     api_key="YOUR_KEY",
@@ -12,9 +9,10 @@ client = BybitClient(
 
 provider = CandleProvider(client)
 
-candle = provider.latest_candle(
+df = provider.recent_candles(
     symbol="BTCUSDT",
-    interval="1"
+    interval="1",
+    limit=200
 )
 
-print(candle)
+print(df.tail())

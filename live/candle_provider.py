@@ -37,3 +37,36 @@ class CandleProvider:
                 "volume": float(candle[5])
             }
         )
+    def recent_candles(
+        self,
+        symbol,
+        interval="1",
+        limit=200
+    ):
+
+        response = self.client.market.get_kline(
+            symbol=symbol,
+            interval=interval,
+            limit=limit
+        )
+
+        candles = response["result"]["list"]
+
+        rows = []
+
+        for candle in reversed(candles):
+
+            rows.append({
+                "timestamp": pd.to_datetime(
+                    int(candle[0]),
+                    unit="ms",
+                    utc=True
+                ),
+                "open": float(candle[1]),
+                "high": float(candle[2]),
+                "low": float(candle[3]),
+                "close": float(candle[4]),
+                "volume": float(candle[5])
+            })
+
+        return pd.DataFrame(rows)
