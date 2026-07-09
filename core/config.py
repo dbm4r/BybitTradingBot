@@ -12,4 +12,6 @@ class Config:
 
     strategy: str = "SMA"
 
-    mode: str = "single"
+    mode: str = "optimization"
+    # mode: str = "single"
+    # mode: str = "comparison"

@@ -1,15 +1,12 @@
 from data.data_manager import DataManager
-
 from strategies.strategy_factory import StrategyFactory
-
 from backtesting.backtester import Backtester
 from backtesting.comparison.comparison_runner import ComparisonRunner
-
 from backtesting.performance.trade_logger import TradeLogger
-
 from core.settings import Settings
 from core.config import Config
-
+from optimization.optimizer import Optimizer
+from optimization.parameter_grid import ParameterGrid
 
 def run_single_backtest(
     config,
@@ -43,6 +40,33 @@ def run_single_backtest(
         "results/trades.csv"
     )
 
+def run_optimization(
+    config,
+    dataframe
+):
+
+    settings = Settings()
+
+    optimizer = Optimizer(
+        settings=settings,
+        symbol=config.symbol
+    )
+
+    grid = ParameterGrid(
+
+        fast_period=[10, 20, 30],
+
+        slow_period=[50, 100]
+
+    )
+
+    optimizer.optimize(
+        dataframe=dataframe,
+        strategy_name=config.strategy,
+        parameter_grid=grid
+    )
+
+    optimizer.print_report()
 
 def run_strategy_comparison(
     config,
@@ -96,6 +120,13 @@ def main():
     elif config.mode == "comparison":
 
         run_strategy_comparison(
+            config,
+            dataframe.copy()
+        )
+
+    elif config.mode == "optimization":
+
+        run_optimization(
             config,
             dataframe.copy()
         )
