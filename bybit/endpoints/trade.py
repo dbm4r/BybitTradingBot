@@ -107,3 +107,64 @@ class TradeEndpoints:
             params=params,
             auth=True
         )
+    def cancel_order(
+        self,
+        symbol: str,
+        order_id: str,
+        category: str = "linear"
+    ):
+
+        body = {
+            "category": category,
+            "symbol": symbol,
+            "orderId": order_id
+        }
+
+        return self.client.request(
+            method="POST",
+            endpoint="/v5/order/cancel",
+            body=body,
+            auth=True
+        )
+    def place_limit_order(
+        self,
+        symbol: str,
+        side: str,
+        quantity: float,
+        price: float,
+        category: str = "linear"
+    ):
+
+        body = {
+            "category": category,
+            "symbol": symbol,
+            "side": side,
+            "orderType": "Limit",
+            "qty": str(quantity),
+            "price": str(price),
+            "timeInForce": "GTC"
+        }
+
+        return self.client.request(
+            method="POST",
+            endpoint="/v5/order/create",
+            body=body,
+            auth=True
+        )
+    def get_order(
+        self,
+        order_id: str,
+        category: str = "linear"
+    ):
+
+        params = {
+            "category": category,
+            "orderId": order_id
+        }
+
+        return self.client.request(
+            method="GET",
+            endpoint="/v5/order/realtime",
+            params=params,
+            auth=True
+        )

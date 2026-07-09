@@ -93,11 +93,100 @@ pprint(
     )
 )
 print("\n" + "=" * 60)
+print("LIMIT ORDER")
+print("=" * 60)
+
+response = client.trade.place_limit_order(
+    symbol="BTCUSDT",
+    side="Buy",
+    quantity=0.001,
+    price=50000
+)
+
+pprint(response)
+print("\n" + "=" * 60)
 print("OPEN ORDERS")
+print("=" * 60)
+
+orders = client.trade.get_open_orders(
+    symbol="BTCUSDT"
+)
+
+pprint(orders)
+print("\n" + "=" * 60)
+print("CANCEL ORDER")
+print("=" * 60)
+
+order_id = response["result"]["orderId"]
+
+pprint(
+    client.trade.cancel_order(
+        symbol="BTCUSDT",
+        order_id=order_id
+    )
+)
+print("\n" + "=" * 60)
+print("OPEN ORDERS AFTER CANCEL")
 print("=" * 60)
 
 pprint(
     client.trade.get_open_orders(
         symbol="BTCUSDT"
+    )
+)
+print("\n" + "=" * 60)
+print("OPEN ORDERS AFTER CANCEL")
+print("=" * 60)
+
+pprint(
+    client.trade.get_open_orders(
+        symbol="BTCUSDT"
+    )
+)
+
+print("\n" + "=" * 60)
+print("CLEAN ALL OPEN ORDERS")
+print("=" * 60)
+
+orders = client.trade.get_open_orders(
+    symbol="BTCUSDT"
+)
+
+for order in orders["result"]["list"]:
+
+    print(f"Cancelling {order['orderId']}")
+
+    pprint(
+        client.trade.cancel_order(
+            symbol="BTCUSDT",
+            order_id=order["orderId"]
+        )
+    )
+
+print("\n" + "=" * 60)
+print("OPEN ORDERS AFTER CLEANUP")
+print("=" * 60)
+
+pprint(
+    client.trade.get_open_orders(
+        symbol="BTCUSDT"
+    )
+)
+print("\n" + "=" * 60)
+print("GET ORDER")
+print("=" * 60)
+
+response = client.trade.place_limit_order(
+    symbol="BTCUSDT",
+    side="Buy",
+    quantity=0.001,
+    price=50000
+)
+
+order_id = response["result"]["orderId"]
+
+pprint(
+    client.trade.get_order(
+        order_id=order_id
     )
 )
