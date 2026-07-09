@@ -22,7 +22,11 @@ class LiveRunner:
     def run(self):
 
         print("Live Runner Started")
-
+        dataframe = self.provider.initialize(
+            symbol=self.symbol,
+            interval=str(self.interval),
+            limit=200
+        )
         try:
 
             while True:
@@ -31,10 +35,9 @@ class LiveRunner:
                     self.interval
                 )
 
-                dataframe = self.provider.recent_candles(
+                dataframe = self.provider.update(
                     symbol=self.symbol,
-                    interval=str(self.interval),
-                    limit=200
+                    interval=str(self.interval)
                 )
 
                 dataframe = self.strategy.generate_signals(

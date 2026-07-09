@@ -9,6 +9,7 @@ class CandleProvider:
     ):
 
         self.client = client
+        self.dataframe = None
 
     def latest_candle(
         self,
@@ -37,7 +38,7 @@ class CandleProvider:
                 "volume": float(candle[5])
             }
         )
-    def recent_candles(
+    def initialize(
         self,
         symbol,
         interval="1",
@@ -69,4 +70,32 @@ class CandleProvider:
                 "volume": float(candle[5])
             })
 
-        return pd.DataFrame(rows)
+        self.dataframe = pd.DataFrame(rows)
+
+        return self.dataframe
+    def update(
+        self,
+        symbol,
+        interval="1"
+    ):
+
+        candle = self.latest_candle(
+            symbol=symbol,
+            interval=interval
+        )
+
+        self.dataframe = pd.concat(
+            [
+                self.dataframe,
+                candle.to_frame().T
+            ],
+            ignore_index=True
+        )
+
+        self.dataframe = (
+            self.dataframe
+            .tail(200)
+            .reset_index(drop=True)
+        )
+
+        return self.dataframe
