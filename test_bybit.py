@@ -55,11 +55,40 @@ print("\n" + "=" * 60)
 print("MARKET ORDER")
 print("=" * 60)
 
-
 pprint(
     client.trade.place_market_order(
         symbol="BTCUSDT",
         side="Buy",
         quantity=0.001
+    )
+)
+
+print("\n" + "=" * 60)
+print("POSITIONS")
+print("=" * 60)
+
+pprint(
+    client.trade.get_positions(
+        symbol="BTCUSDT"
+    )
+)
+
+print("\n" + "=" * 60)
+print("CLOSE POSITION")
+print("=" * 60)
+
+pprint(
+    client.trade.close_position(
+        symbol="BTCUSDT"
+    )
+)
+
+print("\n" + "=" * 60)
+print("POSITIONS AFTER CLOSE")
+print("=" * 60)
+
+pprint(
+    client.trade.get_positions(
+        symbol="BTCUSDT"
     )
 )

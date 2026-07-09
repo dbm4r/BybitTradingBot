@@ -13,17 +13,72 @@ class TradeEndpoints:
     ):
 
         body = {
-
             "category": category,
-
             "symbol": symbol,
-
             "side": side,
-
             "orderType": "Market",
-
             "qty": str(quantity)
+        }
 
+        return self.client.request(
+            method="POST",
+            endpoint="/v5/order/create",
+            body=body,
+            auth=True
+        )
+
+    def get_positions(
+        self,
+        symbol: str | None = None,
+        category: str = "linear"
+    ):
+
+        params = {
+            "category": category
+        }
+
+        if symbol is not None:
+            params["symbol"] = symbol
+
+        return self.client.request(
+            method="GET",
+            endpoint="/v5/position/list",
+            params=params,
+            auth=True
+        )
+    def close_position(
+        self,
+        symbol: str,
+        category: str = "linear"
+    ):
+
+        positions = self.get_positions(
+            symbol=symbol,
+            category=category
+        )
+
+        position = positions["result"]["list"][0]
+
+        size = position["size"]
+
+        if float(size) == 0:
+            return {
+                "message": "No open position."
+            }
+
+        side = (
+            "Sell"
+            if position["side"] == "Buy"
+            else "Buy"
+        )
+
+        body = {
+            "category": category,
+            "symbol": symbol,
+            "side": side,
+            "orderType": "Market",
+            "qty": size,
+            "reduceOnly": True
         }
 
         return self.client.request(
