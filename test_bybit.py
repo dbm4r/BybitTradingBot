@@ -92,3 +92,12 @@ pprint(
         symbol="BTCUSDT"
     )
 )
+print("\n" + "=" * 60)
+print("OPEN ORDERS")
+print("=" * 60)
+
+pprint(
+    client.trade.get_open_orders(
+        symbol="BTCUSDT"
+    )
+)

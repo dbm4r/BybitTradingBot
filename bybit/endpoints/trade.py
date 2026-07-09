@@ -87,3 +87,23 @@ class TradeEndpoints:
             body=body,
             auth=True
         )
+    def get_open_orders(
+        self,
+        symbol: str | None = None,
+        category: str = "linear"
+    ):
+
+        params = {
+            "category": category,
+            "openOnly": 0
+        }
+
+        if symbol is not None:
+            params["symbol"] = symbol
+
+        return self.client.request(
+            method="GET",
+            endpoint="/v5/order/realtime",
+            params=params,
+            auth=True
+        )
