@@ -1,4 +1,9 @@
 from dataclasses import dataclass
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 @dataclass
@@ -21,11 +26,12 @@ class Settings:
     trailing_activation_percent: float = 0.02
 
     # Exchange
-    exchange: str = "PAPER"
+    exchange: str = os.getenv("EXCHANGE", "PAPER")
 
-    # API
-    # api_key: str = ""
-    # api_secret: str = ""
-
-    # Environment
-    # base_url: str = ""
+    # Bybit
+    api_key: str = os.getenv("BYBIT_API_KEY", "")
+    api_secret: str = os.getenv("BYBIT_API_SECRET", "")
+    base_url: str = os.getenv(
+        "BYBIT_BASE_URL",
+        "https://api-demo.bybit.com"
+    )

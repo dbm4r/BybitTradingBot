@@ -16,7 +16,8 @@ class ExecutionEngine:
         self.portfolio = portfolio
         self.settings = settings
         self.exchange = ExchangeFactory.create(
-            settings.exchange
+            settings.exchange,
+            settings
         )
 
         self.symbol = symbol

@@ -3,9 +3,8 @@ from risk.stop_loss import StopLoss
 from risk.take_profit import TakeProfit
 from risk.position_sizer import PositionSizer
 from risk.position_validator import PositionValidator
-from portfolio.portfolio_service import PortfolioService
 from finance.slippage_calculator import SlippageCalculator
-
+from execution.fill_processor import FillProcessor
 
 class EntryExecutor:
 
@@ -37,6 +36,7 @@ class EntryExecutor:
             raise RuntimeError(result.error)
 
         exchange_order = result.order
+        order.exchange_order_id = exchange_order.order_id
 
         fee = (
             engine.portfolio.cash
@@ -79,37 +79,13 @@ class EntryExecutor:
         order.quantity = quantity
         order.remaining_quantity = quantity
 
-        engine.order_manager.fill(
-            engine,
-            order,
-            order.remaining_quantity,
-            price,
-            timestamp
-        )
-        position = engine.portfolio.get_position(
-            engine.symbol
-        )
-
-        PortfolioService.open_position(
-            portfolio=engine.portfolio,
-            position=position,
-            quantity=quantity,
-            price=price,
+        FillProcessor.process_entry_fill(
+            engine=engine,
+            order=order,
             timestamp=timestamp,
+            price=price,
+            quantity=quantity,
             cash_after_fee=cash_after_fee,
             stop_price=stop_price,
             take_profit_price=take_profit_price
         )
-        
-        position_cost = quantity * price
-
-        print("\n========== BUY ==========")
-        print(f"Symbol        : {engine.symbol}")
-        print(f"Quantity      : {quantity:.6f}")
-        print(f"Entry Price   : {price:.2f}")
-        print(f"Position Cost : {position_cost:.2f}")
-        print(f"Cash Left     : {engine.portfolio.cash:.2f}")
-        print(f"Stop Price    : {stop_price:.2f}")
-        print(f"Take Profit   : {take_profit_price:.2f}")
-        print("=========================\n")
-        return

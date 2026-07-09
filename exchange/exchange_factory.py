@@ -1,6 +1,5 @@
 from exchange.paper_exchange import PaperExchange
-from bybit.bybit_client import BybitClient
-from bybit.bybit_exchange import BybitExchange
+from exchange.bybit_exchange import BybitExchange
 
 
 class ExchangeFactory:
@@ -17,13 +16,11 @@ class ExchangeFactory:
 
         if name == "BYBIT":
 
-            client = BybitClient(
-                api_key="",
-                api_secret="",
-                base_url=""
+            return BybitExchange(
+                api_key=settings.api_key,
+                api_secret=settings.api_secret,
+                base_url=settings.base_url
             )
-
-            return BybitExchange(client)
 
         raise ValueError(
             f"Unknown exchange: {name}"

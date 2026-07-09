@@ -16,6 +16,8 @@ class Order(ABC):
 
     status: OrderStatus = OrderStatus.PENDING
 
+    exchange_order_id: str | None = None
+
     filled_price: float | None = None
     filled_time: datetime | None = None
     filled_quantity: float = 0
