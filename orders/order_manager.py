@@ -18,7 +18,6 @@ class OrderManager:
 
         self.orders.append(order)
 
-        print(f"Order Submitted : {order.side}")
 
         return order
 
@@ -50,12 +49,6 @@ class OrderManager:
 
             order.status = OrderStatus.PARTIALLY_FILLED
 
-        print(
-            f"Order Filled : "
-            f"{order.side} "
-            f"{quantity:.6f} @ "
-            f"{price:.2f}"
-        )
 
         return order
     def all_orders(self):

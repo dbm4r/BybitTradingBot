@@ -4,26 +4,36 @@ from execution.exit_executor import ExitExecutor
 
 class ExecutionRouter:
 
-    @staticmethod
+    _handlers = {
+        "BUY": EntryExecutor.execute,
+        "SELL": ExitExecutor.execute,
+    }
+
+    @classmethod
     def execute(
+        cls,
         engine,
         order,
         row
     ):
 
-        if order.side == "BUY":
+        handler = cls._handlers.get(order.side)
 
-            EntryExecutor.execute(
-                engine=engine,
-                timestamp=row["timestamp"],
-                price=order.filled_price
+        if handler is None:
+            raise ValueError(
+                f"Unsupported order side: {order.side}"
             )
 
-        else:
-
-            ExitExecutor.execute(
+        if order.side == "SELL":
+            handler(
                 engine=engine,
                 timestamp=row["timestamp"],
                 price=order.filled_price,
                 exit_reason="Limit Order"
+            )
+        else:
+            handler(
+                engine=engine,
+                timestamp=row["timestamp"],
+                price=order.filled_price
             )

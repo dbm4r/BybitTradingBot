@@ -1,4 +1,7 @@
 from exchange.exchange import Exchange
+from uuid import uuid4
+
+from exchange.exchange_order import ExchangeOrder
 
 
 class PaperExchange(Exchange):
@@ -15,12 +18,20 @@ class PaperExchange(Exchange):
             f"{quantity:.6f} {symbol}"
         )
 
-        return {
-            "symbol": symbol,
-            "side": side,
-            "quantity": quantity,
-            "status": "FILLED"
-        }
+        return ExchangeOrder(
+
+            order_id=str(uuid4()),
+
+            symbol=symbol,
+
+            side=side,
+
+            quantity=quantity,
+
+            status="FILLED",
+
+            average_price=None
+        )
 
     def place_limit_order(
         self,

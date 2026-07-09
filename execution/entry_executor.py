@@ -27,7 +27,7 @@ class EntryExecutor:
             engine,
             order
         )
-        engine.exchange.place_market_order(
+        exchange_order = engine.exchange.place_market_order(
             symbol=order.symbol,
             side=order.side,
             quantity=order.quantity
