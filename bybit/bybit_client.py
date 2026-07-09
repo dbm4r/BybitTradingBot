@@ -96,6 +96,25 @@ class BybitClient:
             )
 
             request_kwargs["data"] = json_body
+        print("\n========== BYBIT REQUEST ==========")
+
+        print("METHOD:", method)
+
+        print("URL:", url)
+
+        if params:
+            print("PARAMS:", params)
+
+        if body:
+            print("BODY:", json_body)
+
+        if auth:
+            print("PAYLOAD:", payload)
+            print("SIGNATURE:", signature)
+
+        print("HEADERS:", headers)
+
+        print("===================================\n")
 
         response = requests.request(
             **request_kwargs
