@@ -132,3 +132,17 @@ class BybitExchange(Exchange):
         return self.client.trade.get_order(
             order_id=order_id
         )
+    def amend_order(
+        self,
+        symbol,
+        order_id,
+        price=None,
+        quantity=None
+    ):
+
+        return self.client.trade.amend_order(
+            symbol=symbol,
+            order_id=order_id,
+            price=price,
+            quantity=quantity
+        )

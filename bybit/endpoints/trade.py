@@ -168,3 +168,30 @@ class TradeEndpoints:
             params=params,
             auth=True
         )
+    def amend_order(
+        self,
+        symbol: str,
+        order_id: str,
+        price: float | None = None,
+        quantity: float | None = None,
+        category: str = "linear"
+    ):
+
+        body = {
+            "category": category,
+            "symbol": symbol,
+            "orderId": order_id
+        }
+
+        if price is not None:
+            body["price"] = str(price)
+
+        if quantity is not None:
+            body["qty"] = str(quantity)
+
+        return self.client.request(
+            method="POST",
+            endpoint="/v5/order/amend",
+            body=body,
+            auth=True
+        )

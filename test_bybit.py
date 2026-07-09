@@ -173,9 +173,10 @@ pprint(
     )
 )
 print("\n" + "=" * 60)
-print("GET ORDER")
+print("AMEND ORDER")
 print("=" * 60)
 
+# Create a limit order
 response = client.trade.place_limit_order(
     symbol="BTCUSDT",
     side="Buy",
@@ -183,10 +184,41 @@ response = client.trade.place_limit_order(
     price=50000
 )
 
+pprint(response)
+
 order_id = response["result"]["orderId"]
 
+# Show the order before amending
+print("\nORDER BEFORE AMEND")
 pprint(
     client.trade.get_order(
+        order_id=order_id
+    )
+)
+
+# Amend the order price
+print("\nAMENDING ORDER...")
+pprint(
+    client.trade.amend_order(
+        symbol="BTCUSDT",
+        order_id=order_id,
+        price=51000
+    )
+)
+
+# Show the order after amending
+print("\nORDER AFTER AMEND")
+pprint(
+    client.trade.get_order(
+        order_id=order_id
+    )
+)
+
+# Clean up
+print("\nCANCELLING ORDER...")
+pprint(
+    client.trade.cancel_order(
+        symbol="BTCUSDT",
         order_id=order_id
     )
 )
