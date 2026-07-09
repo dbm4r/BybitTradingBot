@@ -5,6 +5,7 @@ import time
 from bybit.endpoints.market import MarketEndpoints
 from bybit.endpoints.account import AccountEndpoints
 from bybit.endpoints.trade import TradeEndpoints
+import json
 
 class BybitClient:
 
@@ -28,17 +29,76 @@ class BybitClient:
         endpoint: str,
         params: dict | None = None,
         body: dict | None = None,
-        headers: dict | None = None
+        auth: bool = False
     ):
 
         url = self.base_url + endpoint
 
+        headers = None
+
+        if auth:
+
+            timestamp = self.timestamp()
+
+            if method.upper() == "GET":
+
+                query = ""
+
+                if params:
+
+                    query = "&".join(
+                        f"{key}={value}"
+                        for key, value in params.items()
+                    )
+
+                payload = (
+                    timestamp
+                    + self.api_key
+                    + "5000"
+                    + query
+                )
+
+            else:
+
+                json_body = json.dumps(
+                    body or {},
+                    separators=(",", ":")
+                )
+
+                payload = (
+                    timestamp
+                    + self.api_key
+                    + "5000"
+                    + json_body
+                )
+
+            signature = self.sign(payload)
+
+            headers = self.headers(
+                signature,
+                timestamp
+            )
+
+        request_kwargs = {
+            "method": method,
+            "url": url,
+            "headers": headers
+        }
+
+        if params is not None:
+            request_kwargs["params"] = params
+
+        if body is not None:
+
+            json_body = json.dumps(
+                body,
+                separators=(",", ":")
+            )
+
+            request_kwargs["data"] = json_body
+
         response = requests.request(
-            method=method,
-            url=url,
-            params=params,
-            json=body,
-            headers=headers
+            **request_kwargs
         )
 
         response.raise_for_status()
@@ -52,20 +112,12 @@ class BybitClient:
         )
     def sign(
         self,
-        timestamp,
-        query=""
+        payload: str
     ):
 
-        payload = (
-            timestamp
-            + self.api_key
-            + "5000"
-            + query
-        )
-
         return hmac.new(
-            self.api_secret.encode(),
-            payload.encode(),
+            self.api_secret.encode("utf-8"),
+            payload.encode("utf-8"),
             hashlib.sha256
         ).hexdigest()
     def headers(
@@ -83,6 +135,8 @@ class BybitClient:
             "X-BAPI-RECV-WINDOW": "5000",
 
             "X-BAPI-SIGN": signature,
+
+            "X-BAPI-SIGN-TYPE": "2",
 
             "Content-Type": "application/json"
 
