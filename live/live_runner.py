@@ -43,11 +43,7 @@ class LiveRunner:
 
                 row = dataframe.iloc[-1]
 
-                print("\n========== LIVE SIGNAL ==========")
-                print(f"Time   : {row['timestamp']}")
-                print(f"Price  : {row['close']}")
-                print(f"Signal : {row['signal']}")
-                print("=================================")
+                self.engine.process_candle(row)
 
         except KeyboardInterrupt:
 

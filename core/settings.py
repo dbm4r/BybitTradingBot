@@ -29,9 +29,11 @@ class Settings:
     exchange: str = os.getenv("EXCHANGE", "PAPER")
 
     # Bybit
-    api_key: str = os.getenv("BYBIT_API_KEY", "")
-    api_secret: str = os.getenv("BYBIT_API_SECRET", "")
+    api_key: str = os.getenv("BYBIT_API_KEY", "xdRbOU4VvVZcwxOcEG")
+    api_secret: str = os.getenv("BYBIT_API_SECRET", "s798S41QJlK10r3zcyPIWxD7p9Tjo70PNrpa")
     base_url: str = os.getenv(
         "BYBIT_BASE_URL",
         "https://api-demo.bybit.com"
     )
+
+   
