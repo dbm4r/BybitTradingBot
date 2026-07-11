@@ -30,6 +30,7 @@ class TradeEndpoints:
     def get_positions(
         self,
         symbol: str | None = None,
+        settle_coin: str = "USDT",
         category: str = "linear"
     ):
 
@@ -38,7 +39,12 @@ class TradeEndpoints:
         }
 
         if symbol is not None:
+
             params["symbol"] = symbol
+
+        else:
+
+            params["settleCoin"] = settle_coin
 
         return self.client.request(
             method="GET",
@@ -193,5 +199,20 @@ class TradeEndpoints:
             method="POST",
             endpoint="/v5/order/amend",
             body=body,
+            auth=True
+        )
+    def get_trade_history(
+        self,
+        category="linear",
+        limit=50
+    ):
+
+        return self.client.request(
+            method="GET",
+            endpoint="/v5/execution/list",
+            params={
+                "category": category,
+                "limit": limit
+            },
             auth=True
         )

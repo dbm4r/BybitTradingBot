@@ -23,3 +23,28 @@ engine = ExecutionEngine(
 )
 
 engine.synchronizer.synchronize()
+print()
+
+print("========== PORTFOLIO ==========")
+
+print(
+    f"Cash: {engine.portfolio.cash:.2f}"
+)
+
+position = engine.portfolio.get_position(
+    "BTCUSDT"
+)
+
+print(
+    f"Symbol      : {position.symbol}"
+)
+
+print(
+    f"Quantity    : {position.quantity}"
+)
+
+print(
+    f"Entry Price : {position.entry_price}"
+)
+
+print("===============================")

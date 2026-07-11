@@ -2,6 +2,8 @@ from exchange.exchange import Exchange
 from exchange.exchange_result import ExchangeResult
 from exchange.exchange_order import ExchangeOrder
 from bybit.bybit_client import BybitClient
+from exchange.exchange_balance import ExchangeBalance
+from exchange.exchange_position import ExchangePosition
 
 
 class BybitExchange(Exchange):
@@ -73,11 +75,39 @@ class BybitExchange(Exchange):
 
     def get_balance(self):
 
-        return self.client.account.get_wallet_balance()
+        response = self.client.account.get_wallet_balance()
+
+        account = response["result"]["list"][0]
+
+        return ExchangeBalance(
+            total_equity=float(account["totalEquity"]),
+            wallet_balance=float(account["totalWalletBalance"]),
+            available_balance=float(account["totalAvailableBalance"])
+        )
 
     def get_positions(self):
 
-        return self.client.trade.get_positions()
+        response = self.client.trade.get_positions()
+    
+
+        positions = []
+
+        for item in response["result"]["list"]:
+
+            if float(item["size"]) == 0:
+                continue
+
+            positions.append(
+                ExchangePosition(
+                    symbol=item["symbol"],
+                    side=item["side"],
+                    quantity=float(item["size"]),
+                    average_price=float(item["avgPrice"]),
+                    unrealized_pnl=float(item["unrealisedPnl"])
+                )
+            )
+
+        return positions
 
     def get_open_orders(self):
 
