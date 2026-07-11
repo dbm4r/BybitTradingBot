@@ -4,6 +4,7 @@ from exchange.exchange_order import ExchangeOrder
 from bybit.bybit_client import BybitClient
 from exchange.exchange_balance import ExchangeBalance
 from exchange.exchange_position import ExchangePosition
+from exchange.exchange_trade import ExchangeTrade
 
 
 class BybitExchange(Exchange):
@@ -39,7 +40,8 @@ class BybitExchange(Exchange):
 
             return ExchangeResult(
                 success=False,
-                order=None
+                order=None,
+                error=response["retMsg"]
             )
 
         exchange_order = ExchangeOrder(
@@ -64,14 +66,45 @@ class BybitExchange(Exchange):
         price
     ):
 
-        raise NotImplementedError
+        response = self.client.trade.place_limit_order(
+            symbol=symbol,
+            side=side,
+            quantity=quantity,
+            price=price
+        )
+
+        if response["retCode"] != 0:
+
+            return ExchangeResult(
+                success=False,
+                order=None,
+                error=response["retMsg"]
+            )
+
+        exchange_order = ExchangeOrder(
+            order_id=response["result"]["orderId"],
+            symbol=symbol,
+            side=side,
+            quantity=quantity,
+            status="NEW",
+            average_price=None
+        )
+
+        return ExchangeResult(
+            success=True,
+            order=exchange_order
+        )
 
     def cancel_order(
         self,
+        symbol,
         order_id
     ):
 
-        raise NotImplementedError
+        return self.client.trade.cancel_order(
+            symbol=symbol,
+            order_id=order_id
+        )
 
     def get_balance(self):
 
@@ -108,7 +141,56 @@ class BybitExchange(Exchange):
             )
 
         return positions
+    def get_open_orders(
+        self,
+        symbol=None
+    ):
 
-    def get_open_orders(self):
+        return self.client.trade.get_open_orders(
+            symbol=symbol
+        )
+    def get_order(
+        self,
+        order_id
+    ):
 
-        raise NotImplementedError
+        return self.client.trade.get_order(
+            order_id=order_id
+        )
+    def amend_order(
+        self,
+        symbol,
+        order_id,
+        price=None,
+        quantity=None
+    ):
+
+        return self.client.trade.amend_order(
+            symbol=symbol,
+            order_id=order_id,
+            price=price,
+            quantity=quantity
+        )
+    def get_trade_history(self): 
+        response = self.client.trade.get_trade_history() 
+        trades = [] 
+        for item in response["result"]["list"]: 
+            trades.append( 
+                ExchangeTrade( 
+                    trade_id=item["execId"], 
+                    order_id=item["orderId"], 
+                    symbol=item["symbol"], 
+                    side=item["side"], 
+                    quantity=float(item["execQty"]), 
+                    price=float(item["execPrice"]), 
+                    fee=float(item["execFee"]), 
+                    timestamp=item["execTime"] 
+                ) 
+            ) 
+        return trades
+        
+
+
+
+
+
