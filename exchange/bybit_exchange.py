@@ -5,7 +5,7 @@ from bybit.bybit_client import BybitClient
 from exchange.exchange_balance import ExchangeBalance
 from exchange.exchange_position import ExchangePosition
 from exchange.exchange_trade import ExchangeTrade
-from pprint import pprint
+from exchange.exchange_snapshot import ExchangeSnapshot
 
 
 class BybitExchange(Exchange):
@@ -210,6 +210,14 @@ class BybitExchange(Exchange):
                 ) 
             ) 
         return trades
+    def create_snapshot(self):
+
+        return ExchangeSnapshot(
+            balance=self.get_balance(),
+            positions=self.get_positions(),
+            orders=self.get_open_orders(),
+            trades=self.get_trade_history()
+        )
         
 
 

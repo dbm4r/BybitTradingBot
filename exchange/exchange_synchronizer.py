@@ -16,13 +16,17 @@ class ExchangeSynchronizer:
 
             return
 
-        balance = exchange.get_balance()
+        snapshot = exchange.create_snapshot()
+
+        balance = snapshot.balance
+        positions = snapshot.positions
+        orders = snapshot.orders
+        trades = snapshot.trades
+
         self.engine.portfolio.cash = (
             balance.available_balance
         )
-        positions = exchange.get_positions()
         # trades = exchange.get_trade_history()
-        orders = exchange.get_open_orders()
         self.engine.order_manager.clear()
 
         print("\n========== ACCOUNT ==========")
