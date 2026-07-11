@@ -25,26 +25,26 @@ engine = ExecutionEngine(
 engine.synchronizer.synchronize()
 print()
 
-print("========== PORTFOLIO ==========")
+print("========== ORDER MANAGER ==========")
 
 print(
-    f"Cash: {engine.portfolio.cash:.2f}"
+    f"Orders: {len(engine.order_manager.all_orders())}"
 )
 
-position = engine.portfolio.get_position(
-    "BTCUSDT"
-)
+for order in engine.order_manager.all_orders():
 
-print(
-    f"Symbol      : {position.symbol}"
-)
+    print(order)
 
-print(
-    f"Quantity    : {position.quantity}"
-)
+print("===================================")
+print()
 
-print(
-    f"Entry Price : {position.entry_price}"
-)
+print("\n========== PORTFOLIO ==========")
+print(f"Cash: {engine.portfolio.cash:.2f}")
+
+for symbol, position in engine.portfolio.positions.items():
+
+    print(f"\nSymbol      : {symbol}")
+    print(f"Quantity    : {position.quantity}")
+    print(f"Entry Price : {position.entry_price}")
 
 print("===============================")

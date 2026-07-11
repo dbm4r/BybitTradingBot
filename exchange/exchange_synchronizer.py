@@ -23,6 +23,7 @@ class ExchangeSynchronizer:
         positions = exchange.get_positions()
         # trades = exchange.get_trade_history()
         orders = exchange.get_open_orders()
+        self.engine.order_manager.clear()
 
         print("\n========== ACCOUNT ==========")
         print(balance)
@@ -66,6 +67,10 @@ class ExchangeSynchronizer:
         else:
 
             for order in orders:
+
+                self.engine.order_manager.restore(
+                    order
+                )
 
                 print(order)
 

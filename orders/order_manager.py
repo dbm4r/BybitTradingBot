@@ -118,3 +118,12 @@ class OrderManager:
         print(
             f"Order Cancelled : {order.side}"
         )
+    def restore(
+        self,
+        order
+    ):
+
+        self.orders.append(order)
+    def clear(self):
+
+        self.orders.clear()
