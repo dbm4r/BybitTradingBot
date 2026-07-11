@@ -1,6 +1,9 @@
 from orders.market_order import MarketOrder
 from finance.slippage_calculator import SlippageCalculator
 from execution.execution_coordinator import ExecutionCoordinator
+from engine.engine_state import EngineState
+
+
 class ExitExecutor:
 
     @staticmethod
@@ -10,9 +13,15 @@ class ExitExecutor:
         price,
         exit_reason
     ):
+
+        engine.state.set_state(
+            EngineState.EXITING_POSITION
+        )
+
         position = engine.portfolio.get_position(
             engine.symbol
         )
+
         price = SlippageCalculator.apply_sell(
             price=price,
             slippage_percent=engine.settings.slippage_percent
@@ -29,6 +38,7 @@ class ExitExecutor:
             engine,
             order
         )
+
         result = engine.exchange.place_market_order(
             symbol=order.symbol,
             side=order.side,
@@ -38,7 +48,6 @@ class ExitExecutor:
         if not result.success:
             raise RuntimeError(result.error)
 
-
         ExecutionCoordinator.process_exit(
             engine=engine,
             order=order,
@@ -46,4 +55,8 @@ class ExitExecutor:
             timestamp=timestamp,
             price=price,
             exit_reason=exit_reason
+        )
+
+        engine.state.set_state(
+            EngineState.READY
         )

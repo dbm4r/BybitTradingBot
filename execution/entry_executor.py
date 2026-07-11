@@ -5,6 +5,7 @@ from risk.position_sizer import PositionSizer
 from risk.position_validator import PositionValidator
 from finance.slippage_calculator import SlippageCalculator
 from execution.execution_coordinator import ExecutionCoordinator
+from engine.engine_state import EngineState
 
 class EntryExecutor:
 
@@ -14,6 +15,9 @@ class EntryExecutor:
         timestamp,
         price
     ):
+        engine.state.set_state(
+            EngineState.PLACING_ORDER
+        )
 
         order = MarketOrder(
             symbol=engine.symbol,
@@ -87,4 +91,7 @@ class EntryExecutor:
             cash_after_fee=cash_after_fee,
             stop_price=stop_price,
             take_profit_price=take_profit_price
+        )
+        engine.state.set_state(
+            EngineState.IN_POSITION
         )

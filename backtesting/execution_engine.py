@@ -10,6 +10,7 @@ from execution.execution_listener import ExecutionListener
 from exchange.exchange_synchronizer import (
     ExchangeSynchronizer
 )
+from engine.state_manager import StateManager
 
 
 
@@ -33,6 +34,7 @@ class ExecutionEngine:
         self.events = EventBus()
         self.order_manager = OrderManager()
         self.execution_state = ExecutionState()
+        self.state = StateManager()
         self.execution_listener = ExecutionListener(
             self
         )
