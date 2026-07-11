@@ -96,6 +96,7 @@ class TradeEndpoints:
     def get_open_orders(
         self,
         symbol: str | None = None,
+        settle_coin: str = "USDT",
         category: str = "linear"
     ):
 
@@ -105,7 +106,12 @@ class TradeEndpoints:
         }
 
         if symbol is not None:
+
             params["symbol"] = symbol
+
+        else:
+
+            params["settleCoin"] = settle_coin
 
         return self.client.request(
             method="GET",

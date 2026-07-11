@@ -22,6 +22,7 @@ class ExchangeSynchronizer:
         )
         positions = exchange.get_positions()
         # trades = exchange.get_trade_history()
+        orders = exchange.get_open_orders()
 
         print("\n========== ACCOUNT ==========")
         print(balance)
@@ -56,3 +57,16 @@ class ExchangeSynchronizer:
                 print(exchange_position)
 
         print("=============================\n")
+        print("\n========= OPEN ORDERS =========")
+
+        if not orders:
+
+            print("No open orders.")
+
+        else:
+
+            for order in orders:
+
+                print(order)
+
+        print("===============================\n")

@@ -5,6 +5,7 @@ from bybit.bybit_client import BybitClient
 from exchange.exchange_balance import ExchangeBalance
 from exchange.exchange_position import ExchangePosition
 from exchange.exchange_trade import ExchangeTrade
+from pprint import pprint
 
 
 class BybitExchange(Exchange):
@@ -146,9 +147,30 @@ class BybitExchange(Exchange):
         symbol=None
     ):
 
-        return self.client.trade.get_open_orders(
+        response = self.client.trade.get_open_orders(
             symbol=symbol
         )
+
+        orders = []
+
+        for item in response["result"]["list"]:
+
+            orders.append(
+                ExchangeOrder(
+                    order_id=item["orderId"],
+                    symbol=item["symbol"],
+                    side=item["side"],
+                    quantity=float(item["qty"]),
+                    status=item["orderStatus"],
+                    average_price=(
+                        float(item["price"])
+                        if item["price"]
+                        else None
+                    )
+                )
+            )
+
+        return orders
     def get_order(
         self,
         order_id
