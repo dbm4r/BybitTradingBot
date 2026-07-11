@@ -122,7 +122,13 @@ class BybitClient:
 
         response.raise_for_status()
 
-        return response.json()
+        data = response.json()
+
+        print("\n========== BYBIT RESPONSE ==========")
+        print(json.dumps(data, indent=4))
+        print("====================================\n")
+
+        return data
     
     def timestamp(self):
 

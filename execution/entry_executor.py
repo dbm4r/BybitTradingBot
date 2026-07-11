@@ -19,26 +19,6 @@ class EntryExecutor:
             EngineState.PLACING_ORDER
         )
 
-        order = MarketOrder(
-            symbol=engine.symbol,
-            side="BUY",
-            quantity=0,
-            timestamp=timestamp
-        )
-
-        engine.order_manager.submit(
-            engine,
-            order
-        )
-        result = engine.exchange.place_market_order(
-            symbol=order.symbol,
-            side=order.side,
-            quantity=order.quantity
-        )
-
-        if not result.success:
-            raise RuntimeError(result.error)
-
 
         fee = (
             engine.portfolio.cash
@@ -78,8 +58,47 @@ class EntryExecutor:
             available_cash=cash_after_fee
         )
 
-        order.quantity = quantity
-        order.remaining_quantity = quantity
+        quantity = engine.instrument.round_quantity(
+            quantity
+        )
+
+        if not engine.instrument.validate_quantity(
+            quantity
+        ):
+            raise RuntimeError(
+                f"Invalid quantity: {quantity}"
+            )
+
+        price = engine.instrument.round_price(
+            price
+        )
+
+        
+        print("\n========== ORDER ==========")
+        print(f"Price    : {price}")
+        print(f"Quantity : {quantity}")
+        print("===========================\n")
+        order = MarketOrder(
+            symbol=engine.symbol,
+            side="BUY",
+            quantity=quantity,
+            timestamp=timestamp
+        )
+
+        engine.order_manager.submit(
+            engine,
+            order
+        )
+
+        result = engine.exchange.place_market_order(
+            symbol=order.symbol,
+            side=order.side,
+            quantity=order.quantity
+        )
+
+        if not result.success:
+            raise RuntimeError(result.error)
+
 
         ExecutionCoordinator.process_entry(
             engine=engine,
@@ -91,6 +110,11 @@ class EntryExecutor:
             cash_after_fee=cash_after_fee,
             stop_price=stop_price,
             take_profit_price=take_profit_price
+        )
+        engine.exchange.set_trading_stop(
+            symbol=order.symbol,
+            take_profit=take_profit_price,
+            stop_loss=stop_price
         )
         engine.state.set_state(
             EngineState.IN_POSITION

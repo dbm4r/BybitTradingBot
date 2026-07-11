@@ -106,3 +106,47 @@ class CandleProvider:
         )
 
         return self.dataframe
+    def append_candle(
+        self,
+        candle
+    ):
+
+        row = pd.DataFrame(
+            [
+                {
+                    "timestamp": pd.to_datetime(
+                        candle["start"],
+                        unit="ms",
+                        utc=True
+                    ),
+                    "open": float(candle["open"]),
+                    "high": float(candle["high"]),
+                    "low": float(candle["low"]),
+                    "close": float(candle["close"]),
+                    "volume": float(candle["volume"])
+                }
+            ]
+        )
+
+        timestamp = row.iloc[0]["timestamp"]
+
+        if timestamp == self.last_timestamp:
+            return None
+
+        self.last_timestamp = timestamp
+
+        self.dataframe = pd.concat(
+            [
+                self.dataframe,
+                row
+            ],
+            ignore_index=True
+        )
+
+        self.dataframe = (
+            self.dataframe
+            .tail(200)
+            .reset_index(drop=True)
+        )
+
+        return self.dataframe

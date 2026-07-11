@@ -271,3 +271,28 @@ class TradeEndpoints:
             params=params,
             auth=True
         )
+    def set_trading_stop(
+        self,
+        symbol: str,
+        take_profit: float,
+        stop_loss: float,
+        category: str = DEFAULT_CATEGORY
+    ):
+
+        body = self._build_linear_body(
+            symbol=symbol,
+            category=category
+        )
+
+        body.update({
+            "takeProfit": str(take_profit),
+            "stopLoss": str(stop_loss),
+            "tpslMode": "Full"
+        })
+
+        return self.client.request(
+            method="POST",
+            endpoint="/v5/position/trading-stop",
+            body=body,
+            auth=True
+        )

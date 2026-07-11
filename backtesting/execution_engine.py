@@ -11,6 +11,7 @@ from exchange.exchange_synchronizer import (
     ExchangeSynchronizer
 )
 from engine.state_manager import StateManager
+from exchange.instrument_service import InstrumentService
 
 
 
@@ -24,6 +25,10 @@ class ExecutionEngine:
             settings.exchange,
             settings
         )
+        self.instrument = InstrumentService(
+            self.exchange.client
+        ).get(symbol)
+        
 
         self.symbol = symbol
         self.strategy = strategy

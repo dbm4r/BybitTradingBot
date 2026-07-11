@@ -218,6 +218,18 @@ class BybitExchange(Exchange):
             orders=self.get_open_orders(),
             trades=self.get_trade_history()
         )
+    def set_trading_stop(
+        self,
+        symbol,
+        take_profit,
+        stop_loss
+    ):
+
+        return self.client.trade.set_trading_stop(
+            symbol=symbol,
+            take_profit=take_profit,
+            stop_loss=stop_loss
+        )
         
 
 
