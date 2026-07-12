@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-import pandas as pd
+from models.candle_series import CandleSeries
+from models.indicator_result import IndicatorResult
 
 
 class BaseIndicator(ABC):
@@ -8,6 +9,27 @@ class BaseIndicator(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
+        """
+        Short identifier.
+
+        Example:
+            EMA
+            SMA
+            RSI
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def output_name(self) -> str:
+        """
+        Output name.
+
+        Example:
+            EMA_20
+            SMA_50
+            RSI_14
+        """
         pass
 
     @property
@@ -18,6 +40,6 @@ class BaseIndicator(ABC):
     @abstractmethod
     def calculate(
         self,
-        dataframe: pd.DataFrame
-    ) -> pd.DataFrame:
+        series: CandleSeries,
+    ) -> IndicatorResult:
         pass

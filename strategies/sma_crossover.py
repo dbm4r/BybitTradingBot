@@ -1,7 +1,7 @@
 import pandas as pd
 from indicators.indicator_factory import IndicatorFactory
 from indicators.indicator_pipeline import IndicatorPipeline
-from indicators.moving_average import SimpleMovingAverage
+from indicators.sma import SimpleMovingAverage
 from strategies.base_strategy import BaseStrategy
 
 

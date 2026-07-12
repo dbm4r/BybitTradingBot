@@ -1,4 +1,4 @@
-from indicators.moving_average import SimpleMovingAverage
+from indicators.sma import SimpleMovingAverage
 from indicators.rsi import RelativeStrengthIndex
 from indicators.ema import ExponentialMovingAverage
 
