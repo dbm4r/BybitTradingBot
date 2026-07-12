@@ -34,7 +34,7 @@ class BaseIndicator(ABC):
 
     @property
     @abstractmethod
-    def parameters(self) -> dict:
+    def parameters(self) -> dict[str, int | float | str]:
         pass
 
     @abstractmethod

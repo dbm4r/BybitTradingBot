@@ -1,27 +1,45 @@
 from indicators.sma import SimpleMovingAverage
 from indicators.rsi import RelativeStrengthIndex
 from indicators.ema import ExponentialMovingAverage
-
-
+from indicators.base_indicator import BaseIndicator
 class IndicatorFactory:
 
-    _indicators = {
+    _registry: dict[str, type[BaseIndicator]] = {
         "SMA": SimpleMovingAverage,
         "EMA": ExponentialMovingAverage,
         "RSI": RelativeStrengthIndex,
     }
+    
+    @classmethod
+    def register(
+        cls,
+        name: str,
+        indicator: type[BaseIndicator],
+    ) -> None:
 
+        if not issubclass(indicator, BaseIndicator):
+            raise TypeError(
+                "Indicator must inherit from BaseIndicator."
+            )
+
+        if name in cls._registry:
+            raise ValueError(
+                f"Indicator '{name}' is already registered."
+            )
+
+        cls._registry[name] = indicator
     @classmethod
     def create(
         cls,
         name: str,
-        **kwargs
-    ):
+        **kwargs,
+    ) -> BaseIndicator:
 
-        if name not in cls._indicators:
+        indicator_class = cls._registry.get(name)
 
+        if indicator_class is None:
             raise ValueError(
                 f"Unknown indicator: {name}"
             )
 
-        return cls._indicators[name](**kwargs)
+        return indicator_class(**kwargs)

@@ -1,7 +1,7 @@
 from indicators.base_indicator import BaseIndicator
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
-
+from collections.abc import Iterator
 
 class IndicatorPipeline:
 
@@ -86,5 +86,5 @@ class IndicatorPipeline:
     def __len__(self) -> int:
         return len(self._indicators)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[BaseIndicator]:
         return iter(self._indicators.values())

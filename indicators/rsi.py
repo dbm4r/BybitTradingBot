@@ -1,15 +1,12 @@
-from functools import cached_property
+
 
 from indicators.period_indicator import PeriodIndicator
-from indicators.validation import IndicatorValidator
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
 
 
-class RSI(PeriodIndicator):
+class RelativeStrengthIndex(PeriodIndicator):
 
-    def __init__(self, period: int):
-        super().__init__(period)
 
     @property
     def name(self) -> str:
@@ -19,11 +16,6 @@ class RSI(PeriodIndicator):
     def output_name(self) -> str:
         return f"RSI_{self.period}"
 
-    @cached_property
-    def parameters(self) -> dict:
-        return {
-            "period": self.period
-        }
 
     def calculate(
         self,

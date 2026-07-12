@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from indicators.rsi import RSI
+from indicators.rsi import RelativeStrengthIndex
 from models.candle import Candle
 from models.candle_series import CandleSeries
 
@@ -48,7 +48,7 @@ for price in prices:
         )
     )
 
-rsi = RSI(14)
+rsi = RelativeStrengthIndex(14)
 
 result = rsi.calculate(series)
 

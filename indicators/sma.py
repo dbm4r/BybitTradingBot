@@ -1,15 +1,11 @@
 from indicators.period_indicator import PeriodIndicator
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
-from functools import cached_property
 
-from indicators.validation import IndicatorValidator
 
 
 class SimpleMovingAverage(PeriodIndicator):
 
-    def __init__(self, period: int):
-        super().__init__(period)
 
     @property
     def name(self) -> str:

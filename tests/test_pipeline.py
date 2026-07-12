@@ -2,7 +2,7 @@ from datetime import datetime
 
 from indicators.ema import ExponentialMovingAverage
 from indicators.indicator_pipeline import IndicatorPipeline
-from indicators.rsi import RSI
+from indicators.rsi import RelativeStrengthIndex
 from indicators.sma import SimpleMovingAverage
 from models.candle import Candle
 from models.candle_series import CandleSeries
@@ -39,7 +39,7 @@ pipeline = IndicatorPipeline()
 pipeline.add_many(
     SimpleMovingAverage(3),
     ExponentialMovingAverage(3),
-    RSI(14),
+    RelativeStrengthIndex(14),
 )
 
 results = pipeline.calculate(series)
