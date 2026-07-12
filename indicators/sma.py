@@ -1,13 +1,15 @@
 from indicators.base_indicator import BaseIndicator
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
+from functools import cached_property
+
+from indicators.validation import IndicatorValidator
 
 
 class SimpleMovingAverage(BaseIndicator):
 
     def __init__(self, period: int):
-        if period <= 0:
-            raise ValueError("Period must be greater than zero.")
+        IndicatorValidator.validate_period(period)
 
         self.period = period
 
@@ -19,12 +21,11 @@ class SimpleMovingAverage(BaseIndicator):
     def output_name(self) -> str:
         return f"SMA_{self.period}"
 
-    @property
+    @cached_property
     def parameters(self) -> dict:
         return {
             "period": self.period
         }
-
     def calculate(
         self,
         series: CandleSeries,

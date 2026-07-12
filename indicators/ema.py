@@ -1,43 +1,70 @@
-import pandas as pd
-
 from indicators.base_indicator import BaseIndicator
+from models.candle_series import CandleSeries
+from models.indicator_result import IndicatorResult
+from functools import cached_property
 
+from indicators.validation import IndicatorValidator
 
 class ExponentialMovingAverage(BaseIndicator):
 
-    def __init__(
-        self,
-        period: int
-    ):
+    def __init__(self, period: int):
+        IndicatorValidator.validate_period(period)
 
         self.period = period
 
     @property
     def name(self) -> str:
-
-        return "Exponential Moving Average"
+        return "EMA"
 
     @property
-    def parameters(self) -> dict:
+    def output_name(self) -> str:
+        return f"EMA_{self.period}"
 
+    @cached_property
+    def parameters(self) -> dict:
         return {
             "period": self.period
         }
 
     def calculate(
         self,
-        dataframe: pd.DataFrame
-    ) -> pd.DataFrame:
+        series: CandleSeries,
+    ) -> IndicatorResult:
 
-        column = f"EMA_{self.period}"
+        closes = series.close_prices
 
-        dataframe[column] = (
-            dataframe["close"]
-            .ewm(
-                span=self.period,
-                adjust=False
-            )
-            .mean()
+        values: list[float | None] = []
+
+        multiplier = 2 / (self.period + 1)
+
+        ema: float | None = None
+
+        for i, close in enumerate(closes):
+
+            if i + 1 < self.period:
+                values.append(None)
+                continue
+
+            if ema is None:
+                ema = sum(
+                    closes[
+                        i + 1 - self.period:
+                        i + 1
+                    ]
+                ) / self.period
+
+            else:
+                ema = (
+                    (close - ema)
+                    * multiplier
+                    + ema
+                )
+
+            values.append(ema)
+
+        return IndicatorResult(
+            name=self.name,
+            output_name=self.output_name,
+            values=values,
+            parameters=self.parameters,
         )
-
-        return dataframe
