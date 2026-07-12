@@ -19,3 +19,9 @@ print(result.first)
 print(result.last)
 print(result.count)
 print(result.is_empty)
+print(len(result))
+
+print(result[2])
+
+for value in result:
+    print(value)

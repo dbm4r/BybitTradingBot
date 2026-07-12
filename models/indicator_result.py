@@ -27,3 +27,11 @@ class IndicatorResult:
     @property
     def is_empty(self) -> bool:
         return len(self.values) == 0
+    def __len__(self) -> int:
+        return len(self.values)
+
+    def __getitem__(self, index):
+        return self.values[index]
+
+    def __iter__(self):
+        return iter(self.values)
