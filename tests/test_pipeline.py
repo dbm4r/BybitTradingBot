@@ -36,14 +36,30 @@ for price in prices:
 
 pipeline = IndicatorPipeline()
 
-pipeline.add(SimpleMovingAverage(3))
-pipeline.add(ExponentialMovingAverage(3))
-pipeline.add(RSI(14))
+pipeline.add_many(
+    SimpleMovingAverage(3),
+    ExponentialMovingAverage(3),
+    RSI(14),
+)
 
 results = pipeline.calculate(series)
+indicator = pipeline.get("EMA_3")
+
+print(indicator)
 
 print(results.keys())
 
 for name, result in results.items():
     print(name)
     print(result.last)
+
+print(pipeline.has("EMA_3"))
+
+print(pipeline.has("EMA_100"))
+print(pipeline.count)
+
+pipeline.remove("EMA_3")
+
+print(pipeline.count)
+
+print(pipeline.has("EMA_3"))
