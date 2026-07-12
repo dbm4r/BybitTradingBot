@@ -1,20 +1,15 @@
 from functools import cached_property
 
-from indicators.base_indicator import BaseIndicator
+from indicators.period_indicator import PeriodIndicator
 from indicators.validation import IndicatorValidator
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
 
 
-class RSI(BaseIndicator):
+class RSI(PeriodIndicator):
 
-    def __init__(
-        self,
-        period: int = 14,
-    ):
-        IndicatorValidator.validate_period(period)
-
-        self.period = period
+    def __init__(self, period: int):
+        super().__init__(period)
 
     @property
     def name(self) -> str:

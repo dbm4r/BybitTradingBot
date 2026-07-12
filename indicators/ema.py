@@ -1,16 +1,13 @@
-from indicators.base_indicator import BaseIndicator
+from indicators.period_indicator import PeriodIndicator
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
-from functools import cached_property
 
 from indicators.validation import IndicatorValidator
 
-class ExponentialMovingAverage(BaseIndicator):
+class ExponentialMovingAverage(PeriodIndicator):
 
     def __init__(self, period: int):
-        IndicatorValidator.validate_period(period)
-
-        self.period = period
+        super().__init__(period)
 
     @property
     def name(self) -> str:
@@ -19,12 +16,6 @@ class ExponentialMovingAverage(BaseIndicator):
     @property
     def output_name(self) -> str:
         return f"EMA_{self.period}"
-
-    @cached_property
-    def parameters(self) -> dict:
-        return {
-            "period": self.period
-        }
 
     def calculate(
         self,
