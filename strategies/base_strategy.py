@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from indicators.base_indicator import BaseIndicator
 from strategies.strategy_context import StrategyContext
 from strategies.strategy_decision import StrategyDecision
 
@@ -10,12 +11,7 @@ class BaseStrategy(ABC):
     @abstractmethod
     def name(self) -> str:
         """
-        Short strategy name.
-
-        Examples:
-            SMA Crossover
-            EMA Crossover
-            RSI Strategy
+        Strategy name.
         """
         pass
 
@@ -24,12 +20,14 @@ class BaseStrategy(ABC):
     def parameters(self) -> dict:
         """
         Strategy configuration.
+        """
+        pass
 
-        Example:
-            {
-                "fast_period": 20,
-                "slow_period": 50,
-            }
+    @property
+    @abstractmethod
+    def indicators(self) -> tuple[BaseIndicator, ...]:
+        """
+        Indicators required by this strategy.
         """
         pass
 
@@ -39,7 +37,6 @@ class BaseStrategy(ABC):
         context: StrategyContext,
     ) -> StrategyDecision:
         """
-        Analyze the current market context and return
-        a trading decision.
+        Analyze the market and return a trading decision.
         """
         pass

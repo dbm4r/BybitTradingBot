@@ -1,8 +1,11 @@
-import pandas as pd
-from indicators.indicator_factory import IndicatorFactory
-from indicators.indicator_pipeline import IndicatorPipeline
+from functools import cached_property
+
+from indicators.base_indicator import BaseIndicator
 from indicators.sma import SimpleMovingAverage
 from strategies.base_strategy import BaseStrategy
+from strategies.signal_type import SignalType
+from strategies.strategy_context import StrategyContext
+from strategies.strategy_decision import StrategyDecision
 
 
 class SMACrossoverStrategy(BaseStrategy):
@@ -10,60 +13,87 @@ class SMACrossoverStrategy(BaseStrategy):
     def __init__(
         self,
         fast_period: int = 20,
-        slow_period: int = 50
+        slow_period: int = 50,
     ):
 
-        self.fast_period = fast_period
-        self.slow_period = slow_period
+        if fast_period >= slow_period:
+            raise ValueError(
+                "Fast period must be smaller than slow period."
+            )
+
+        self.fast_sma = SimpleMovingAverage(
+            fast_period
+        )
+
+        self.slow_sma = SimpleMovingAverage(
+            slow_period
+        )
 
     @property
     def name(self) -> str:
-
         return "SMA Crossover"
 
-    @property
+    @cached_property
     def parameters(self) -> dict:
-
         return {
-            "fast_period": self.fast_period,
-            "slow_period": self.slow_period
+            "fast_period": self.fast_sma.period,
+            "slow_period": self.slow_sma.period,
         }
 
-    def generate_signals(
+    @property
+    def indicators(
         self,
-        dataframe: pd.DataFrame
-    ) -> pd.DataFrame:
-        
-        pipeline = (
-            IndicatorPipeline()
-            .add(
-                IndicatorFactory.create(
-                    "SMA",
-                    period=self.fast_period
-                )
-            )
-            .add(
-                IndicatorFactory.create(
-                    "SMA",
-                    period=self.slow_period
-                )
-            )
+    ) -> tuple[BaseIndicator, ...]:
+
+        return (
+            self.fast_sma,
+            self.slow_sma,
         )
 
-        dataframe = pipeline.calculate(dataframe)
+    def evaluate(
+        self,
+        context: StrategyContext,
+    ) -> StrategyDecision:
 
-        dataframe["signal"] = 0
+        fast = context.get_indicator(
+            self.fast_sma
+        )
 
-        dataframe.loc[
-            dataframe[f"SMA_{self.fast_period}"] >
-            dataframe[f"SMA_{self.slow_period}"],
-            "signal"
-        ] = 1
+        slow = context.get_indicator(
+            self.slow_sma
+        )
 
-        dataframe.loc[
-            dataframe[f"SMA_{self.fast_period}"] <
-            dataframe[f"SMA_{self.slow_period}"],
-            "signal"
-        ] = -1
+        if fast is None or slow is None:
+            raise ValueError(
+                "Required indicators are missing."
+            )
 
-        return dataframe
+        fast_value = fast.last
+        slow_value = slow.last
+
+        if fast_value is None or slow_value is None:
+            return StrategyDecision(
+                signal=SignalType.HOLD,
+                confidence=1.0,
+                reason="Indicators are not ready.",
+            )
+
+        if fast_value > slow_value:
+            return StrategyDecision(
+                signal=SignalType.OPEN_LONG,
+                confidence=1.0,
+                reason="Fast SMA crossed above Slow SMA.",
+            )
+
+        if fast_value < slow_value:
+            return StrategyDecision(
+                signal=SignalType.OPEN_SHORT,
+                confidence=1.0,
+                reason="Fast SMA crossed below Slow SMA.",
+            )
+
+        return StrategyDecision(
+            signal=SignalType.HOLD,
+            confidence=1.0,
+            reason="No crossover detected.",
+        )

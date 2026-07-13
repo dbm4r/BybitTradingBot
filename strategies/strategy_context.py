@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from indicators.base_indicator import BaseIndicator
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
 
@@ -13,7 +13,9 @@ class StrategyContext:
 
     def get_indicator(
         self,
-        output_name: str,
+        indicator: BaseIndicator,
     ) -> IndicatorResult | None:
 
-        return self.indicators.get(output_name)
+        return self.indicators.get(
+            indicator.output_name
+        )

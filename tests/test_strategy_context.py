@@ -1,10 +1,10 @@
 from datetime import datetime
-
+from indicators.rsi import RelativeStrengthIndex
 from models.candle import Candle
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
 from strategies.strategy_context import StrategyContext
-
+from indicators.ema import ExponentialMovingAverage
 
 series = CandleSeries(
     symbol="BTCUSDT",
@@ -43,8 +43,14 @@ print(context.candles.symbol)
 print(context.candles.interval)
 print(context.candles.last.close)
 
-indicator = context.get_indicator("EMA_20")
+ema = ExponentialMovingAverage(20)
+
+indicator = context.get_indicator(ema)
 
 print(indicator.last if indicator else None)
 
-print(context.get_indicator("RSI_14"))
+print(
+    context.get_indicator(
+        RelativeStrengthIndex(14)
+    )
+)
