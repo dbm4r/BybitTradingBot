@@ -10,7 +10,7 @@ from bybit.bybit_client import BybitClient
 from live.candle_provider import CandleProvider
 from live.websocket_runner import WebSocketRunner
 
-from strategies.ema_crossover import EMACrossoverStrategy
+from strategies.trend.ema_crossover import EMACrossoverStrategy
 
 
 settings = Settings()

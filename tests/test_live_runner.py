@@ -6,7 +6,7 @@ from bybit.bybit_client import BybitClient
 
 from live.live_runner import LiveRunner
 
-from strategies.ema_crossover import EMACrossoverStrategy
+from strategies.trend.ema_crossover import EMACrossoverStrategy
 
 
 settings = Settings()

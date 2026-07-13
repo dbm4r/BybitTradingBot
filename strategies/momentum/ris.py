@@ -1,5 +1,5 @@
 import pandas as pd
-from strategies.base_strategy import BaseStrategy
+from strategies.framework.base_strategy import BaseStrategy
 from indicators.indicator_factory import IndicatorFactory
 from indicators.indicator_pipeline import IndicatorPipeline
 

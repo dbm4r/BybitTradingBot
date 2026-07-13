@@ -1,7 +1,7 @@
 from core.settings import Settings
 from backtesting.execution_engine import ExecutionEngine
 from backtesting.portfolio import Portfolio
-from strategies.ema_crossover import (
+from strategies.trend.ema_crossover import (
     EMACrossoverStrategy
 )
 

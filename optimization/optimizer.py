@@ -1,4 +1,4 @@
-from strategies.strategy_factory import StrategyFactory
+from strategies.framework.strategy_factory import StrategyFactory
 from optimization.optimization_result import OptimizationResult
 from backtesting.runner.backtest_runner import BacktestRunner
 from backtesting.runner.backtest_result import BacktestResult

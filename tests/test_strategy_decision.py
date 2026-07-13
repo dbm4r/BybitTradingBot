@@ -1,5 +1,5 @@
-from strategies.signal_type import SignalType
-from strategies.strategy_decision import StrategyDecision
+from strategies.framework.signal_type import SignalType
+from strategies.framework.strategy_decision import StrategyDecision
 
 
 decision = StrategyDecision(

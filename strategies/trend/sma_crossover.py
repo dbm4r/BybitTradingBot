@@ -2,10 +2,10 @@ from functools import cached_property
 
 from indicators.base_indicator import BaseIndicator
 from indicators.sma import SimpleMovingAverage
-from strategies.base_strategy import BaseStrategy
-from strategies.signal_type import SignalType
-from strategies.strategy_context import StrategyContext
-from strategies.strategy_decision import StrategyDecision
+from strategies.framework.base_strategy import BaseStrategy
+from strategies.framework.signal_type import SignalType
+from strategies.framework.strategy_context import StrategyContext
+from strategies.framework.strategy_decision import StrategyDecision
 
 
 class SMACrossoverStrategy(BaseStrategy):

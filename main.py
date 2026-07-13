@@ -1,5 +1,5 @@
 from data.data_manager import DataManager
-from strategies.strategy_factory import StrategyFactory
+from strategies.framework.strategy_factory import StrategyFactory
 from backtesting.backtester import Backtester
 from backtesting.comparison.comparison_runner import ComparisonRunner
 from backtesting.performance.trade_logger import TradeLogger

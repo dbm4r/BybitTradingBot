@@ -1,4 +1,4 @@
-from strategies.strategy_factory import StrategyFactory
+from strategies.framework.strategy_factory import StrategyFactory
 
 strategy = StrategyFactory.create(
     "SMA",

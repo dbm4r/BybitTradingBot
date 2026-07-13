@@ -1,4 +1,4 @@
-from strategies.signal_type import SignalType
+from strategies.framework.signal_type import SignalType
 
 print(SignalType.OPEN_LONG)
 print(SignalType.CLOSE_LONG)

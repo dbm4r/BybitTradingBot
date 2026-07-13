@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 from indicators.base_indicator import BaseIndicator
-from strategies.strategy_context import StrategyContext
-from strategies.strategy_decision import StrategyDecision
+from strategies.framework.strategy_context import StrategyContext
+from strategies.framework.strategy_decision import StrategyDecision
 
 
 class BaseStrategy(ABC):

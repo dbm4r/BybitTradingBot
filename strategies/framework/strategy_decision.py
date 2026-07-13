@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from strategies.signal_type import SignalType
+from strategies.framework.signal_type import SignalType
 
 
 @dataclass(frozen=True)

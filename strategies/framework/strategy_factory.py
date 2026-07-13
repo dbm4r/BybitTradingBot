@@ -1,6 +1,6 @@
-from strategies.sma_crossover import SMACrossoverStrategy
-from strategies.rsi_strategy import RSIStrategy
-from strategies.ema_crossover import EMACrossoverStrategy
+from strategies.trend.sma_crossover import SMACrossoverStrategy
+from strategies.momentum.ris import RSIStrategy
+from strategies.trend.ema_crossover import EMACrossoverStrategy
 
 
 class StrategyFactory:
