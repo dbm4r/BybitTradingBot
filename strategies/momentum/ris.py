@@ -1,7 +1,11 @@
-import pandas as pd
+from functools import cached_property
+
+from indicators.base_indicator import BaseIndicator
+from indicators.rsi import RelativeStrengthIndex
 from strategies.framework.base_strategy import BaseStrategy
-from indicators.indicator_factory import IndicatorFactory
-from indicators.indicator_pipeline import IndicatorPipeline
+from strategies.framework.signal_type import SignalType
+from strategies.framework.strategy_context import StrategyContext
+from strategies.framework.strategy_decision import StrategyDecision
 
 
 class RSIStrategy(BaseStrategy):
@@ -9,57 +13,90 @@ class RSIStrategy(BaseStrategy):
     def __init__(
         self,
         period: int = 14,
-        oversold: int = 30,
-        overbought: int = 70
+        oversold: float = 30,
+        overbought: float = 70,
     ):
 
-        self.period = period
+        if oversold >= overbought:
+            raise ValueError(
+                "Oversold must be smaller than overbought."
+            )
+
+        self.rsi = RelativeStrengthIndex(period)
+
         self.oversold = oversold
         self.overbought = overbought
 
     @property
     def name(self) -> str:
-
         return "RSI Strategy"
 
-    @property
-    def parameters(self):
-
+    @cached_property
+    def parameters(self) -> dict:
         return {
-            "period": self.period,
+            "period": self.rsi.period,
             "oversold": self.oversold,
-            "overbought": self.overbought
+            "overbought": self.overbought,
         }
 
-    def generate_signals(
+    @property
+    def indicators(
         self,
-        dataframe: pd.DataFrame
-    ) -> pd.DataFrame:
+    ) -> tuple[BaseIndicator, ...]:
 
-        pipeline = (
-            IndicatorPipeline()
-            .add(
-                IndicatorFactory.create(
-                    "RSI",
-                    period=self.period
-                )
+        return (
+            self.rsi,
+        )
+
+    def evaluate(
+        self,
+        context: StrategyContext,
+    ) -> StrategyDecision:
+
+        result = context.get_indicator(
+            self.rsi
+        )
+
+        if result is None:
+            raise ValueError(
+                "Required indicator is missing."
             )
+
+        value = result.last
+
+        candle = context.last_candle
+
+        if value is None:
+            return StrategyDecision(
+                signal=SignalType.HOLD,
+                confidence=1.0,
+                reason="RSI is not ready.",
+                strategy=self.name,
+                candle=candle,
+            )
+
+        if value < self.oversold:
+            return StrategyDecision(
+                signal=SignalType.OPEN_LONG,
+                confidence=1.0,
+                reason="RSI entered oversold region.",
+                strategy=self.name,
+                candle=candle,
+            )
+
+        if value > self.overbought:
+            return StrategyDecision(
+                signal=SignalType.OPEN_SHORT,
+                confidence=1.0,
+                reason="RSI entered overbought region.",
+                strategy=self.name,
+                candle=candle,
+            )
+
+        return StrategyDecision(
+            signal=SignalType.HOLD,
+            confidence=1.0,
+            reason="RSI is neutral.",
+            strategy=self.name,
+            candle=candle,
         )
-
-        dataframe = pipeline.calculate(
-            dataframe
-        )
-
-        dataframe["signal"] = 0
-
-        dataframe.loc[
-            dataframe["RSI"] < self.oversold,
-            "signal"
-        ] = 1
-
-        dataframe.loc[
-            dataframe["RSI"] > self.overbought,
-            "signal"
-        ] = -1
-
-        return dataframe

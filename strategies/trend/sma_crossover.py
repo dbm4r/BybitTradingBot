@@ -71,11 +71,15 @@ class SMACrossoverStrategy(BaseStrategy):
         fast_value = fast.last
         slow_value = slow.last
 
+        candle = context.last_candle
+
         if fast_value is None or slow_value is None:
             return StrategyDecision(
                 signal=SignalType.HOLD,
                 confidence=1.0,
                 reason="Indicators are not ready.",
+                strategy=self.name,
+                candle=candle,
             )
 
         if fast_value > slow_value:
@@ -83,6 +87,8 @@ class SMACrossoverStrategy(BaseStrategy):
                 signal=SignalType.OPEN_LONG,
                 confidence=1.0,
                 reason="Fast SMA crossed above Slow SMA.",
+                strategy=self.name,
+                candle=candle,
             )
 
         if fast_value < slow_value:
@@ -90,10 +96,14 @@ class SMACrossoverStrategy(BaseStrategy):
                 signal=SignalType.OPEN_SHORT,
                 confidence=1.0,
                 reason="Fast SMA crossed below Slow SMA.",
+                strategy=self.name,
+                candle=candle,
             )
 
         return StrategyDecision(
             signal=SignalType.HOLD,
             confidence=1.0,
             reason="No crossover detected.",
+            strategy=self.name,
+            candle=candle,
         )

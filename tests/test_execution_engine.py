@@ -2,8 +2,9 @@ from datetime import datetime
 
 from models.candle import Candle
 from strategies.framework.signal_type import SignalType
-from strategies.framework.strategy_decision import StrategyDecision
-
+from strategies.framework.strategy_decision import (
+    StrategyDecision,
+)
 
 candle = Candle(
     symbol="BTCUSDT",
@@ -20,14 +21,12 @@ candle = Candle(
 decision = StrategyDecision(
     signal=SignalType.OPEN_LONG,
     confidence=1.0,
-    reason="EMA crossed SMA",
-    strategy="EMA Crossover",
+    reason="Test Decision",
+    strategy="Test Strategy",
     candle=candle,
 )
 
 print(decision.signal)
-print(decision.confidence)
-print(decision.reason)
 print(decision.strategy)
-print(decision.candle.timestamp)
+print(decision.reason)
 print(decision.candle.close)

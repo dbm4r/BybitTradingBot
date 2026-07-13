@@ -1,8 +1,11 @@
-import pandas as pd
+from functools import cached_property
 
+from indicators.base_indicator import BaseIndicator
+from indicators.ema import ExponentialMovingAverage
 from strategies.framework.base_strategy import BaseStrategy
-from indicators.indicator_factory import IndicatorFactory
-from indicators.indicator_pipeline import IndicatorPipeline
+from strategies.framework.signal_type import SignalType
+from strategies.framework.strategy_context import StrategyContext
+from strategies.framework.strategy_decision import StrategyDecision
 
 
 class EMACrossoverStrategy(BaseStrategy):
@@ -10,60 +13,97 @@ class EMACrossoverStrategy(BaseStrategy):
     def __init__(
         self,
         fast_period: int = 20,
-        slow_period: int = 50
+        slow_period: int = 50,
     ):
 
-        self.fast_period = fast_period
-        self.slow_period = slow_period
+        if fast_period >= slow_period:
+            raise ValueError(
+                "Fast period must be smaller than slow period."
+            )
+
+        self.fast_ema = ExponentialMovingAverage(
+            fast_period
+        )
+
+        self.slow_ema = ExponentialMovingAverage(
+            slow_period
+        )
 
     @property
     def name(self) -> str:
-
         return "EMA Crossover"
 
-    @property
+    @cached_property
     def parameters(self) -> dict:
-
         return {
-            "fast_period": self.fast_period,
-            "slow_period": self.slow_period
+            "fast_period": self.fast_ema.period,
+            "slow_period": self.slow_ema.period,
         }
 
-    def generate_signals(
+    @property
+    def indicators(
         self,
-        dataframe: pd.DataFrame
-    ) -> pd.DataFrame:
+    ) -> tuple[BaseIndicator, ...]:
 
-        pipeline = (
-            IndicatorPipeline()
-            .add(
-                IndicatorFactory.create(
-                    "EMA",
-                    period=self.fast_period
-                )
-            )
-            .add(
-                IndicatorFactory.create(
-                    "EMA",
-                    period=self.slow_period
-                )
-            )
+        return (
+            self.fast_ema,
+            self.slow_ema,
         )
 
-        dataframe = pipeline.calculate(dataframe)
+    def evaluate(
+        self,
+        context: StrategyContext,
+    ) -> StrategyDecision:
 
-        dataframe["signal"] = 0
+        fast = context.get_indicator(
+            self.fast_ema
+        )
 
-        dataframe.loc[
-            dataframe[f"EMA_{self.fast_period}"] >
-            dataframe[f"EMA_{self.slow_period}"],
-            "signal"
-        ] = 1
+        slow = context.get_indicator(
+            self.slow_ema
+        )
 
-        dataframe.loc[
-            dataframe[f"EMA_{self.fast_period}"] <
-            dataframe[f"EMA_{self.slow_period}"],
-            "signal"
-        ] = -1
+        if fast is None or slow is None:
+            raise ValueError(
+                "Required indicators are missing."
+            )
 
-        return dataframe
+        fast_value = fast.last
+        slow_value = slow.last
+
+        candle = context.last_candle
+
+        if fast_value is None or slow_value is None:
+            return StrategyDecision(
+                signal=SignalType.HOLD,
+                confidence=1.0,
+                reason="Indicators are not ready.",
+                strategy=self.name,
+                candle=candle,
+            )
+
+        if fast_value > slow_value:
+            return StrategyDecision(
+                signal=SignalType.OPEN_LONG,
+                confidence=1.0,
+                reason="Fast EMA crossed above Slow EMA.",
+                strategy=self.name,
+                candle=candle,
+            )
+
+        if fast_value < slow_value:
+            return StrategyDecision(
+                signal=SignalType.OPEN_SHORT,
+                confidence=1.0,
+                reason="Fast EMA crossed below Slow EMA.",
+                strategy=self.name,
+                candle=candle,
+            )
+
+        return StrategyDecision(
+            signal=SignalType.HOLD,
+            confidence=1.0,
+            reason="No crossover detected.",
+            strategy=self.name,
+            candle=candle,
+        )

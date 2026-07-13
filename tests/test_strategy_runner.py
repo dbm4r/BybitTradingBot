@@ -56,3 +56,6 @@ decision = runner.run(
 print(decision.signal)
 print(decision.confidence)
 print(decision.reason)
+print(decision.strategy)
+print(decision.candle.timestamp)
+print(decision.candle.close)

@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
+from models.candle import Candle
 from strategies.framework.signal_type import SignalType
 
 
-@dataclass(frozen=True)
+@dataclass(slots=True, frozen=True)
 class StrategyDecision:
 
     signal: SignalType
@@ -12,14 +13,6 @@ class StrategyDecision:
 
     reason: str
 
-    def __post_init__(self) -> None:
+    strategy: str
 
-        if not 0.0 <= self.confidence <= 1.0:
-            raise ValueError(
-                "Confidence must be between 0.0 and 1.0."
-            )
-
-        if not self.reason.strip():
-            raise ValueError(
-                "Reason cannot be empty."
-            )
+    candle: Candle
