@@ -58,19 +58,19 @@ class EntryExecutor:
             available_cash=cash_after_fee
         )
 
-        quantity = engine.instrument.round_quantity(
-            quantity
+        quantity = engine.exchange.instrument.round_quantity(
+            quantity,
         )
 
-        if not engine.instrument.validate_quantity(
-            quantity
+        if not engine.exchange.instrument.validate_quantity(
+            quantity,
         ):
             raise RuntimeError(
                 f"Invalid quantity: {quantity}"
             )
 
-        price = engine.instrument.round_price(
-            price
+        price = engine.exchange.instrument.round_price(
+            price,
         )
 
         

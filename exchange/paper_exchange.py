@@ -1,17 +1,32 @@
-from exchange.exchange import Exchange
 from uuid import uuid4
-from exchange.exchange_result import ExchangeResult
+
+from exchange.exchange import Exchange
 from exchange.exchange_order import ExchangeOrder
+from exchange.exchange_result import ExchangeResult
+from exchange.instrument import Instrument
 
 
 class PaperExchange(Exchange):
+
+    def __init__(
+        self,
+        symbol,
+    ):
+
+        self.instrument = Instrument(
+            symbol=symbol,
+            qty_step=0.001,
+            min_qty=0.001,
+            max_qty=150.0,
+            tick_size=0.10,
+        )
 
     def place_market_order(
         self,
         symbol,
         side,
         quantity,
-        price = None
+        price=None,
     ):
 
         print(
@@ -25,12 +40,12 @@ class PaperExchange(Exchange):
             side=side,
             quantity=quantity,
             status="FILLED",
-            average_price=price
+            average_price=price,
         )
 
         return ExchangeResult(
             success=True,
-            order=exchange_order
+            order=exchange_order,
         )
 
     def place_limit_order(
@@ -38,18 +53,18 @@ class PaperExchange(Exchange):
         symbol,
         side,
         quantity,
-        price
+        price,
     ):
 
         print(
             f"[PAPER] LIMIT {side} "
-            f"{quantity:.6f} {symbol}"
-            f" @ {price:.2f}"
+            f"{quantity:.6f} {symbol} "
+            f"@ {price:.2f}"
         )
 
     def cancel_order(
         self,
-        order_id
+        order_id,
     ):
 
         print(
@@ -67,3 +82,12 @@ class PaperExchange(Exchange):
     def get_open_orders(self):
 
         return []
+
+    def set_trading_stop(
+        self,
+        symbol,
+        take_profit,
+        stop_loss,
+    ):
+
+        return None

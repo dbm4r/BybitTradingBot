@@ -1,4 +1,5 @@
 from models.candle import Candle
+
 from execution.entry_executor import EntryExecutor
 from execution.exit_executor import ExitExecutor
 
@@ -16,7 +17,7 @@ class ExecutionRouter:
         engine,
         order,
         candle: Candle,
-    ):
+    ) -> None:
 
         handler = cls._handlers.get(order.side)
 

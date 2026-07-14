@@ -19,7 +19,8 @@ engine = ExecutionEngine(
     portfolio=portfolio,
     settings=settings,
     symbol="BTCUSDT",
-    strategy=strategy
+    strategy=strategy,
+    exchange_name="BYBIT"
 )
 
 engine.synchronizer.synchronize()

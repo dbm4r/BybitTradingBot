@@ -18,16 +18,14 @@ from strategies.framework.signal_type import SignalType
 
 class ExecutionEngine:
 
-    def __init__(self, portfolio, settings, symbol, strategy):
+    def __init__(self, portfolio, settings, symbol, strategy, exchange_name="BYBIT"):
         self.portfolio = portfolio
         self.settings = settings
         self.exchange = ExchangeFactory.create(
-            settings.exchange,
-            settings
+            exchange_name,
+            settings,
+            symbol,
         )
-        self.instrument = InstrumentService(
-            self.exchange.client
-        ).get(symbol)
         
 
         self.symbol = symbol

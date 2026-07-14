@@ -6,7 +6,7 @@ class BacktestRunner:
     def __init__(
         self,
         settings,
-        symbol
+        symbol,
     ):
 
         self.settings = settings
@@ -15,21 +15,18 @@ class BacktestRunner:
     def run(
         self,
         dataframe,
-        strategy
+        strategy,
     ):
-
-        dataframe = strategy.generate_signals(
-            dataframe.copy()
-        )
 
         backtester = Backtester(
             settings=self.settings,
             symbol=self.symbol,
-            strategy=strategy
+            strategy=strategy,
+             interval="1"
         )
 
         trades = backtester.run(
-            dataframe
+            dataframe.copy(),
         )
 
         return backtester, trades

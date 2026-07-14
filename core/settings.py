@@ -25,8 +25,7 @@ class Settings:
     break_even_trigger_percent: float = 0.01
     trailing_activation_percent: float = 0.02
 
-    # Exchange
-    exchange: str = os.getenv("EXCHANGE", "BYBIT")
+    
 
     # Bybit
     api_key: str = os.getenv("BYBIT_API_KEY", "xdRbOU4VvVZcwxOcEG")

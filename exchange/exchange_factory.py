@@ -7,19 +7,22 @@ class ExchangeFactory:
     @staticmethod
     def create(
         name,
-        settings=None
+        settings=None,
+        symbol=None,
     ):
 
         if name == "PAPER":
 
-            return PaperExchange()
-
+            return PaperExchange(
+                symbol=symbol,
+            )
         if name == "BYBIT":
 
             return BybitExchange(
                 api_key=settings.api_key,
                 api_secret=settings.api_secret,
-                base_url=settings.base_url
+                base_url=settings.base_url,
+                symbol=symbol,
             )
 
         raise ValueError(

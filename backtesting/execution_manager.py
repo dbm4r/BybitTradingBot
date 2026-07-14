@@ -28,7 +28,8 @@ class ExecutionManager:
                 portfolio=self.portfolio,
                 settings=self.settings,
                 symbol=symbol,
-                strategy=strategy
+                strategy=strategy,
+                exchange_name="PAPER"
             )
 
         return self.engines[key]

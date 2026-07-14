@@ -6,7 +6,7 @@ from exchange.exchange_balance import ExchangeBalance
 from exchange.exchange_position import ExchangePosition
 from exchange.exchange_trade import ExchangeTrade
 from exchange.exchange_snapshot import ExchangeSnapshot
-
+from exchange.instrument_service import InstrumentService
 
 class BybitExchange(Exchange):
 
@@ -14,14 +14,19 @@ class BybitExchange(Exchange):
         self,
         api_key,
         api_secret,
-        base_url
+        base_url,
+        symbol,
     ):
 
         self.client = BybitClient(
             api_key=api_key,
             api_secret=api_secret,
-            base_url=base_url
+            base_url=base_url,
         )
+
+        self.instrument = InstrumentService(
+            self.client,
+        ).get(symbol)
 
     def place_market_order(
         self,

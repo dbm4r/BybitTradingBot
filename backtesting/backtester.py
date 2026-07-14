@@ -4,12 +4,14 @@ from backtesting.performance.statistics import Statistics
 from core.settings import Settings
 from backtesting.performance.equity_curve import EquityCurve
 from backtesting.performance.risk_metrics import RiskMetrics
-
+from market.candle_factory import CandleFactory
+from pipeline.trading_pipeline import TradingPipeline
+from trading.trading_session import TradingSession
 
 
 class Backtester:
 
-    def __init__(self, settings, symbol, strategy):
+    def __init__(self, settings, symbol, strategy, interval="1"):
 
         self.settings = settings
 
@@ -29,57 +31,88 @@ class Backtester:
 
         self.symbol = symbol
         self.strategy = strategy
+        self.interval = interval
         self.equity = EquityCurve()
 
         self.trades = []
 
-    def run(self, df):
+    def run(
+        self,
+        dataframe,
+    ):
 
         engine = self.engine
 
-        for _, row in df.iterrows():
+        session = TradingSession(
+            engine=engine,
+            pipeline=TradingPipeline(
+                strategy=self.strategy,
+                symbol=self.symbol,
+                interval=self.interval,
+            ),
+        )
 
-            signal = row["signal"]
-            price = row["close"]
-            timestamp = row["timestamp"]
+        for _, row in dataframe.iterrows():
+
+            candle = CandleFactory.from_series(
+                row=row,
+                symbol=self.symbol,
+                interval=self.interval,
+            )
+
             engine.order_manager.process_pending_orders(
-                engine,
-                row)
+                engine=engine,
+                candle=candle,
+            )
 
-            engine.process_candle(row)
+            session.process_candle(
+                candle,
+            )
 
             portfolio_value = self.portfolio.total_value(
                 self.symbol,
-                row["close"])
-
-            self.equity.add(
-                row["timestamp"],
-                portfolio_value)
-            
-
-        # Close any remaining open position
-        if self.portfolio.in_position(self.symbol):
-
-            last_row = df.iloc[-1]
-
-            engine.sell(
-                timestamp=last_row["timestamp"],
-                price=last_row["close"],
-                exit_reason="End of Backtest"
+                candle.close,
             )
 
             self.equity.add(
-                last_row["timestamp"],
+                candle.timestamp,
+                portfolio_value,
+            )
+
+        if self.portfolio.in_position(
+            self.symbol
+        ):
+
+            last_row = dataframe.iloc[-1]
+
+            last_candle = CandleFactory.from_series(
+                row=last_row,
+                symbol=self.symbol,
+                interval=self.interval,
+            )
+
+            engine.sell(
+                timestamp=last_candle.timestamp,
+                price=last_candle.close,
+                exit_reason="End of Backtest",
+            )
+
+            self.equity.add(
+                last_candle.timestamp,
                 self.portfolio.total_value(
                     self.symbol,
-                    last_row["close"]
-                )
+                    last_candle.close,
+                ),
             )
 
         self.trades = engine.trades
 
         curve = self.equity.dataframe()
-        curve.to_csv("results/equity_curve.csv", index=False)
+
+        curve.to_csv(
+            "results/equity_curve.csv",
+            index=False,
+        )
 
         return self.trades
 
