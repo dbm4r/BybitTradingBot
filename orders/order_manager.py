@@ -2,7 +2,7 @@ from orders.order_status import OrderStatus
 from execution.execution_router import ExecutionRouter
 from orders.oco_manager import OCOManager
 from events.event_names import EventNames
-
+from models.candle import Candle
 class OrderManager:
 
     def __init__(self):
@@ -81,35 +81,34 @@ class OrderManager:
         ]
     def process_pending_orders(
         self,
-        execution_engine,
-        row
-    ):
+        engine,
+        candle: Candle,
+    ) -> None:
 
         for order in self.pending():
+
             if (
                 order.expires_at is not None
-                and row["timestamp"] >= order.expires_at
+                and candle.timestamp >= order.expires_at
             ):
-
                 order.expire()
-
                 continue
 
-            if not order.should_fill(row):
+            if not order.should_fill(candle):
                 continue
 
             self.fill(
-                order,
-                order.remaining_quantity,
-                execution_engine,
-                order.execution_price,
-                row["timestamp"]
+                engine=engine,
+                order=order,
+                quantity=order.remaining_quantity,
+                price=order.execution_price,
+                timestamp=candle.timestamp,
             )
 
             ExecutionRouter.execute(
-                engine=execution_engine,
+                engine=engine,
                 order=order,
-                row=row
+                candle=candle,
             )
     def cancel(self, order):
 

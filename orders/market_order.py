@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-
+from models.candle import Candle
 from orders.order import Order
 from orders.order_type import OrderType
 
@@ -17,6 +17,10 @@ class MarketOrder(Order):
 
         return self.filled_price
 
-    def should_fill(self, row):
+    
 
+    def should_fill(
+        self,
+        candle: Candle,
+    ) -> bool:
         return True

@@ -51,7 +51,32 @@ class TradingPipeline:
         return self.strategy.evaluate(
             context
         )
+    def load_history(
+        self,
+        candle_series: CandleSeries,
+    ) -> None:
 
+        if (
+            candle_series.symbol
+            != self.series.symbol
+        ):
+            raise ValueError(
+                "Symbol mismatch."
+            )
+
+        if (
+            candle_series.interval
+            != self.series.interval
+        ):
+            raise ValueError(
+                "Interval mismatch."
+            )
+
+        self.series = candle_series
+
+        self.indicator_pipeline.calculate(
+            self.series
+        )
     @property
     def candle_series(self) -> CandleSeries:
 

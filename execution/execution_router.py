@@ -1,3 +1,4 @@
+from models.candle import Candle
 from execution.entry_executor import EntryExecutor
 from execution.exit_executor import ExitExecutor
 
@@ -14,7 +15,7 @@ class ExecutionRouter:
         cls,
         engine,
         order,
-        row
+        candle: Candle,
     ):
 
         handler = cls._handlers.get(order.side)
@@ -25,15 +26,18 @@ class ExecutionRouter:
             )
 
         if order.side == "SELL":
+
             handler(
                 engine=engine,
-                timestamp=row["timestamp"],
+                timestamp=candle.timestamp,
                 price=order.filled_price,
-                exit_reason="Limit Order"
+                exit_reason="Limit Order",
             )
+
         else:
+
             handler(
                 engine=engine,
-                timestamp=row["timestamp"],
-                price=order.filled_price
+                timestamp=candle.timestamp,
+                price=order.filled_price,
             )

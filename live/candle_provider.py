@@ -1,152 +1,102 @@
-import pandas as pd
 
+from datetime import datetime, timezone
+from market.candle_factory import CandleFactory
+from models.candle_series import CandleSeries
 
 class CandleProvider:
 
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
 
         self.client = client
-        self.dataframe = None
         self.last_timestamp = None
 
     def latest_candle(
         self,
         symbol,
-        interval="1"
+        interval="1",
     ):
 
         response = self.client.market.get_kline(
             symbol=symbol,
             interval=interval,
-            limit=1
+            limit=1,
         )
 
         candle = response["result"]["list"][0]
 
-        return pd.Series(
-            {
-                "timestamp": pd.to_datetime(
-                    int(candle[0]),
-                    unit="ms"
+        return CandleFactory.from_dict(
+            symbol=symbol,
+            interval=interval,
+            data={
+                "timestamp": datetime.fromtimestamp(
+                    int(candle[0]) / 1000,
+                    tz=timezone.utc,
                 ),
-                "open": float(candle[1]),
-                "high": float(candle[2]),
-                "low": float(candle[3]),
-                "close": float(candle[4]),
-                "volume": float(candle[5])
-            }
+                "open": candle[1],
+                "high": candle[2],
+                "low": candle[3],
+                "close": candle[4],
+                "volume": candle[5],
+                "turnover": 0,
+            },
         )
+
     def initialize(
         self,
         symbol,
         interval="1",
-        limit=200
+        limit=200,
     ):
 
         response = self.client.market.get_kline(
             symbol=symbol,
             interval=interval,
-            limit=limit
+            limit=limit,
         )
 
-        candles = response["result"]["list"]
+        candles = []
 
-        rows = []
+        for item in reversed(response["result"]["list"]):
 
-        for candle in reversed(candles):
+            candles.append(
+                CandleFactory.from_dict(
+                    symbol=symbol,
+                    interval=interval,
+                    data={
+                        "timestamp": datetime.fromtimestamp(
+                            int(item[0]) / 1000,
+                            tz=timezone.utc,
+                        ),
+                        "open": item[1],
+                        "high": item[2],
+                        "low": item[3],
+                        "close": item[4],
+                        "volume": item[5],
+                        "turnover": 0,
+                    },
+                )
+            )
 
-            rows.append({
-                "timestamp": pd.to_datetime(
-                    int(candle[0]),
-                    unit="ms",
-                    utc=True
-                ),
-                "open": float(candle[1]),
-                "high": float(candle[2]),
-                "low": float(candle[3]),
-                "close": float(candle[4]),
-                "volume": float(candle[5])
-            })
+        return CandleSeries(
+            symbol=symbol,
+            interval=interval,
+            candles=candles,
+        )
 
-        self.dataframe = pd.DataFrame(rows)
-
-        return self.dataframe
     def update(
         self,
         symbol,
-        interval="1"
+        interval="1",
     ):
 
         candle = self.latest_candle(
             symbol=symbol,
-            interval=interval
+            interval=interval,
         )
-        timestamp = candle["timestamp"]
 
-        if timestamp == self.last_timestamp:
+        if candle.timestamp == self.last_timestamp:
             return None
 
-        self.last_timestamp = timestamp
+        self.last_timestamp = candle.timestamp
 
-        self.dataframe = pd.concat(
-            [
-                self.dataframe,
-                candle.to_frame().T
-            ],
-            ignore_index=True
-        )
-
-        self.dataframe = (
-            self.dataframe
-            .tail(200)
-            .reset_index(drop=True)
-        )
-
-        return self.dataframe
-    def append_candle(
-        self,
-        candle
-    ):
-
-        row = pd.DataFrame(
-            [
-                {
-                    "timestamp": pd.to_datetime(
-                        candle["start"],
-                        unit="ms",
-                        utc=True
-                    ),
-                    "open": float(candle["open"]),
-                    "high": float(candle["high"]),
-                    "low": float(candle["low"]),
-                    "close": float(candle["close"]),
-                    "volume": float(candle["volume"])
-                }
-            ]
-        )
-
-        timestamp = row.iloc[0]["timestamp"]
-
-        if timestamp == self.last_timestamp:
-            return None
-
-        self.last_timestamp = timestamp
-
-        self.dataframe = pd.concat(
-            [
-                self.dataframe,
-                row
-            ],
-            ignore_index=True
-        )
-
-        self.dataframe = (
-            self.dataframe
-            .tail(200)
-            .reset_index(drop=True)
-        )
-
-        return self.dataframe
+        return candle

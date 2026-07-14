@@ -29,9 +29,7 @@ class Candle:
 
     @property
     def body_size(self) -> float:
-        return abs(
-            self.close - self.open
-        )
+        return abs(self.close - self.open)
 
     @property
     def range(self) -> float:
@@ -76,7 +74,7 @@ class Candle:
             low=float(row["low"]),
             close=float(row["close"]),
             volume=float(row["volume"]),
-            turnover=float(row["turnover"]),
+            turnover=float(row.get("turnover", 0)),
         )
 
     @classmethod
@@ -96,5 +94,5 @@ class Candle:
             low=float(data["low"]),
             close=float(data["close"]),
             volume=float(data["volume"]),
-            turnover=float(data["turnover"]),
+            turnover=float(data.get("turnover", 0)),
         )

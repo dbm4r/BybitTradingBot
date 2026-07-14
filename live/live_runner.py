@@ -1,6 +1,8 @@
-from live.scheduler import Scheduler
-from live.candle_provider import CandleProvider
 from engine.engine_state import EngineState
+from live.candle_provider import CandleProvider
+from live.scheduler import Scheduler
+from pipeline.trading_pipeline import TradingPipeline
+from trading.trading_session import TradingSession
 
 
 class LiveRunner:
@@ -11,11 +13,20 @@ class LiveRunner:
         strategy,
         execution_engine,
         symbol,
-        interval=1
+        interval=1,
     ):
 
         self.provider = CandleProvider(client)
-        self.strategy = strategy
+
+        self.session = TradingSession(
+            engine=execution_engine,
+            pipeline=TradingPipeline(
+                strategy=strategy,
+                symbol=symbol,
+                interval=str(interval),
+            ),
+        )
+
         self.engine = execution_engine
         self.symbol = symbol
         self.interval = interval
@@ -24,18 +35,20 @@ class LiveRunner:
 
         print("Live Runner Started")
 
-        # Engine is starting synchronization
         self.engine.state.set_state(
             EngineState.SYNCHRONIZING
         )
 
-        dataframe = self.provider.initialize(
+        history = self.provider.initialize(
             symbol=self.symbol,
             interval=str(self.interval),
-            limit=200
+            limit=200,
         )
 
-        # Initial synchronization finished
+        self.session.load_history(
+            history
+        )
+
         self.engine.state.set_state(
             EngineState.READY
         )
@@ -44,7 +57,6 @@ class LiveRunner:
 
             while True:
 
-                # Waiting for next candle
                 self.engine.state.set_state(
                     EngineState.WAITING_FOR_CANDLE
                 )
@@ -53,26 +65,21 @@ class LiveRunner:
                     self.interval
                 )
 
-                dataframe = self.provider.update(
+                candle = self.provider.update(
                     symbol=self.symbol,
-                    interval=str(self.interval)
+                    interval=str(self.interval),
                 )
 
-                if dataframe is None:
+                if candle is None:
                     continue
 
-                # Generating signals
                 self.engine.state.set_state(
                     EngineState.GENERATING_SIGNAL
                 )
 
-                dataframe = self.strategy.generate_signals(
-                    dataframe
+                self.session.process_candle(
+                    candle
                 )
-
-                row = dataframe.iloc[-1]
-
-                self.engine.process_candle(row)
 
         except KeyboardInterrupt:
 
@@ -80,7 +87,9 @@ class LiveRunner:
                 EngineState.STOPPED
             )
 
-            print("\nStopping Live Runner...")
+            print(
+                "\nStopping Live Runner..."
+            )
 
         except Exception:
 

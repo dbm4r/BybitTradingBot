@@ -6,6 +6,7 @@ from pipeline.trading_pipeline import TradingPipeline
 from strategies.framework.strategy_decision import (
     StrategyDecision,
 )
+from models.candle_series import CandleSeries
 
 
 class TradingSession:
@@ -36,3 +37,11 @@ class TradingSession:
         )
 
         return decision
+    def load_history(
+        self,
+        candle_series: CandleSeries,
+    ) -> None:
+
+        self.pipeline.load_history(
+            candle_series
+        )
