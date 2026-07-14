@@ -1,5 +1,6 @@
 import asyncio
-
+from pipeline.trading_pipeline import TradingPipeline
+from trading.trading_session import TradingSession
 from core.settings import Settings
 
 from backtesting.portfolio import Portfolio
@@ -23,10 +24,10 @@ client = BybitClient(
 
 provider = CandleProvider(client)
 
-provider.initialize(
+history = provider.initialize(
     symbol="BTCUSDT",
     interval="1",
-    limit=200
+    limit=200,
 )
 
 strategy = EMACrossoverStrategy(
@@ -45,39 +46,37 @@ engine = ExecutionEngine(
     strategy=strategy,
     exchange_name="BYBIT"
 )
+pipeline = TradingPipeline(
+    strategy=strategy,
+    symbol="BTCUSDT",
+    interval="1",
+)
+
+history = provider.initialize(
+    symbol="BTCUSDT",
+    interval="1",
+    limit=200,
+)
+
+pipeline.load_history(history)
+
+session = TradingSession(
+    engine=engine,
+    pipeline=pipeline,
+)
 
 
 async def candle_received(candle):
 
-    dataframe = provider.append_candle(candle)
+    candle = provider.append_candle(candle)
 
-    if dataframe is None:
+    if candle is None:
         return
 
-    dataframe = strategy.generate_signals(
-        dataframe
+    decision = session.process_candle(
+        candle
     )
 
-    row = dataframe.iloc[-1]
-
     print("\n========== NEW CANDLE ==========")
-    print(row[[
-        "timestamp",
-        "close",
-        "signal"
-    ]])
+    print(decision)
     print("===============================\n")
-
-    engine.process_candle(row)
-
-
-runner = WebSocketRunner(
-    symbol="BTCUSDT",
-    interval="1"
-)
-
-runner.socket.on_candle = candle_received
-
-asyncio.run(
-    runner.run()
-)

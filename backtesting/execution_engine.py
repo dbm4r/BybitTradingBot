@@ -11,8 +11,8 @@ from exchange.exchange_synchronizer import (
     ExchangeSynchronizer
 )
 from engine.state_manager import StateManager
-from exchange.instrument_service import InstrumentService
-from strategies.framework.signal_type import SignalType
+
+
 
 
 
@@ -76,75 +76,5 @@ class ExecutionEngine:
             price=price,
             exit_reason=exit_reason
         )
-    def process_candle(self, row):
-        """
-        Legacy compatibility layer.
 
-        Scheduled for removal after all
-        DataFrame-based execution has been
-        migrated to TradingSession.
-        """
-
-        self.risk_manager.process(row)
-
-        signal = row["signal"]
-        timestamp = row["timestamp"]
-        price = row["close"]
-
-        position = self.portfolio.get_position(
-            self.symbol
-        )
-
-        if signal == 1 and not position.is_open():
-
-            self.buy(timestamp, price)
-
-        elif signal == -1 and position.is_open():
-
-            self.sell(
-                timestamp,
-                price,
-                "Signal"
-            )
     
-
-
-    def process_decision(
-        self,
-        decision,
-    ) -> None:
-
-        position = self.portfolio.get_position(
-            self.symbol
-        )
-
-        candle = decision.candle
-
-        match decision.signal:
-
-            case SignalType.OPEN_LONG:
-
-                if not position.is_open():
-
-                    self.buy(
-                        timestamp=candle.timestamp,
-                        price=candle.close,
-                    )
-
-            case SignalType.OPEN_SHORT:
-
-                if position.is_open():
-
-                    self.sell(
-                        timestamp=candle.timestamp,
-                        price=candle.close,
-                        exit_reason=decision.reason,
-                    )
-
-            case SignalType.HOLD:
-                return
-
-            case _:
-                raise ValueError(
-                    f"Unsupported signal: {decision.signal}"
-                )
