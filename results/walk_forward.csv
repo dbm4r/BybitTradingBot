@@ -1,0 +1,3 @@
+Window,Strategy,Parameters,Train ROI,Test ROI,Train Profit,Test Profit,Train Trades,Test Trades
+1,SMA Crossover,"{'fast_period': 30, 'slow_period': 100}",5.140451461207412,-0.7047022870989895,601.0121014369427,-15.409728709899175,2,1
+2,SMA Crossover,"{'fast_period': 10, 'slow_period': 100}",1.8577570087178172,-0.6467371984418423,276.9666858941079,-15.414519844186396,2,1

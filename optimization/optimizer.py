@@ -45,6 +45,18 @@ class Optimizer:
             key=lambda result: result.roi,
             reverse=True
         )
+    def best_result(
+        self,
+    ):
+
+        if not self.results:
+
+            return None
+
+        return max(
+            self.results,
+            key=lambda result: result.roi,
+        )
 
     def optimize(
         self,

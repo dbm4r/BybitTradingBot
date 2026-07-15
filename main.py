@@ -7,6 +7,8 @@ from core.settings import Settings
 from core.config import Config
 from optimization.optimizer import Optimizer
 from optimization.parameter_grid import ParameterGrid
+from validation.walk_forward import WalkForwardValidator
+from validation.walk_forward_logger import WalkForwardLogger
 
 
 def run_single_backtest(
@@ -94,7 +96,40 @@ def run_strategy_comparison(
 
     runner.print_report()
 
+def run_walk_forward(
+    config,
+    dataframe,
+):
 
+    settings = Settings()
+
+    validator = WalkForwardValidator(
+        settings=settings,
+        symbol=config.symbol,
+    )
+
+    grid = ParameterGrid(
+
+        fast_period=[10, 20, 30],
+
+        slow_period=[50, 100]
+
+    )
+
+    results = validator.validate(
+        dataframe=dataframe,
+        strategy_name=config.strategy,
+        parameter_grid=grid,
+        train_size=300,
+        test_size=100,
+    )
+
+    validator.print_report()
+
+    WalkForwardLogger.export(
+        results,
+        "results/walk_forward.csv",
+    )
 def main():
 
     config = Config()
@@ -126,6 +161,12 @@ def main():
         run_optimization(
             config,
             dataframe.copy()
+        )
+    elif config.mode == "walk_forward":
+
+        run_walk_forward(
+            config,
+            dataframe.copy(),
         )
 
     else:
