@@ -1,5 +1,5 @@
 from functools import cached_property
-
+from market.market_regime import MarketRegime
 from indicators.base_indicator import BaseIndicator
 from indicators.sma import SimpleMovingAverage
 from strategies.framework.base_strategy import BaseStrategy
@@ -49,6 +49,21 @@ class SMACrossoverStrategy(BaseStrategy):
             self.fast_sma,
             self.slow_sma,
         )
+    @property
+    def supported_regimes(self) -> dict:
+
+        return {
+            "trend": [
+                MarketRegime.TRENDING,
+            ],
+            "volatility": [
+                MarketRegime.HIGH_VOLATILITY,
+                MarketRegime.LOW_VOLATILITY,
+            ],
+            "liquidity": [
+                MarketRegime.HIGH_LIQUIDITY,
+            ],
+        }
 
     def evaluate(
         self,

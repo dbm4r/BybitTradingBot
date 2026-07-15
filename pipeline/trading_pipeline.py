@@ -60,15 +60,21 @@ class TradingPipeline:
             self.series
         )
 
-        allowed = self.regime_filter.allows(
-            decision=decision,
+        allowed, reason = self.regime_filter.allows(
+            strategy=self.strategy,
             regime=regime,
         )
 
         if not allowed:
-            return decision
+            return StrategyDecision.hold(
+                candle=decision.candle,
+                strategy=decision.strategy,
+                reason=reason,
+            )
 
         return decision
+
+        
     def load_history(
         self,
         candle_series: CandleSeries,

@@ -40,3 +40,10 @@ class BaseStrategy(ABC):
         Analyze the market and return a trading decision.
         """
         pass
+    @property
+    @abstractmethod
+    def supported_regimes(self) -> dict:
+        """
+        Market regimes where this strategy is allowed to trade.
+        """
+        ...

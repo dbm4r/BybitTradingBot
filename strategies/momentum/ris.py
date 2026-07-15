@@ -1,5 +1,5 @@
 from functools import cached_property
-
+from market.market_regime import MarketRegime
 from indicators.base_indicator import BaseIndicator
 from indicators.rsi import RelativeStrengthIndex
 from strategies.framework.base_strategy import BaseStrategy
@@ -47,6 +47,20 @@ class RSIStrategy(BaseStrategy):
         return (
             self.rsi,
         )
+    @property
+    def supported_regimes(self) -> dict:
+
+        return {
+            "trend": [
+                MarketRegime.RANGING,
+            ],
+            "volatility": [
+                MarketRegime.LOW_VOLATILITY,
+            ],
+            "liquidity": [
+                MarketRegime.HIGH_LIQUIDITY,
+            ],
+        }
 
     def evaluate(
         self,
