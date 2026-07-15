@@ -20,10 +20,6 @@ def run_single_backtest(
         config.strategy
     )
 
-    dataframe = strategy.generate_signals(
-        dataframe
-    )
-
     backtester = Backtester(
         settings=settings,
         symbol=config.symbol,
