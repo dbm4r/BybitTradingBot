@@ -9,7 +9,8 @@ from optimization.optimizer import Optimizer
 from optimization.parameter_grid import ParameterGrid
 from validation.walk_forward import WalkForwardValidator
 from validation.walk_forward_logger import WalkForwardLogger
-
+from validation.monte_carlo import MonteCarloValidator
+from validation.monte_carlo_logger import MonteCarloLogger
 
 def run_single_backtest(
     config,
@@ -130,6 +131,42 @@ def run_walk_forward(
         results,
         "results/walk_forward.csv",
     )
+def run_monte_carlo(
+    config,
+    dataframe,
+):
+
+    settings = Settings()
+
+    strategy = StrategyFactory.create(
+        config.strategy
+    )
+
+    backtester = Backtester(
+        settings=settings,
+        symbol=config.symbol,
+        strategy=strategy,
+    )
+
+    trades = backtester.run(
+        dataframe.copy()
+    )
+
+    validator = MonteCarloValidator(
+        iterations=1000,
+    )
+
+    results = validator.validate(
+        trades=trades,
+        initial_balance=backtester.portfolio.initial_balance,
+    )
+
+    validator.print_report()
+
+    MonteCarloLogger.export(
+        results,
+        "results/monte_carlo.csv",
+    )
 def main():
 
     config = Config()
@@ -165,6 +202,12 @@ def main():
     elif config.mode == "walk_forward":
 
         run_walk_forward(
+            config,
+            dataframe.copy(),
+        )
+    elif config.mode == "monte_carlo":
+
+        run_monte_carlo(
             config,
             dataframe.copy(),
         )

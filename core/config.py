@@ -11,6 +11,8 @@ class Config:
     limit: int = 500
 
     strategy: str = "SMA"
+    
+    # mode: str = "monte_carlo"
     mode: str = "walk_forward"
     # mode: str = "optimization"
     # mode: str = "single"
