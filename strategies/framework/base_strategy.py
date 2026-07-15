@@ -47,3 +47,17 @@ class BaseStrategy(ABC):
         Market regimes where this strategy is allowed to trade.
         """
         ...
+    @property
+    @abstractmethod
+    def requires_higher_timeframe_confirmation(
+        self,
+    ) -> bool:
+        ...
+
+
+    @property
+    @abstractmethod
+    def confirmation_timeframes(
+        self,
+    ):
+        ...

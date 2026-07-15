@@ -6,7 +6,7 @@ from strategies.framework.base_strategy import BaseStrategy
 from strategies.framework.signal_type import SignalType
 from strategies.framework.strategy_context import StrategyContext
 from strategies.framework.strategy_decision import StrategyDecision
-
+from market.timeframe import Timeframe
 
 class EMACrossoverStrategy(BaseStrategy):
 
@@ -121,4 +121,20 @@ class EMACrossoverStrategy(BaseStrategy):
             reason="No crossover detected.",
             strategy=self.name,
             candle=candle,
+        )
+    @property
+    def requires_higher_timeframe_confirmation(
+        self,
+    ) -> bool:
+
+        return True
+
+
+    @property
+    def confirmation_timeframes(
+        self,
+    ):
+
+        return (
+            Timeframe.H1,
         )

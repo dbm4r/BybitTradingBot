@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from indicators.base_indicator import BaseIndicator
+from market.multi_timeframe_context import MultiTimeframeContext
 from models.candle import Candle
 from models.candle_series import CandleSeries
 from models.indicator_result import IndicatorResult
@@ -12,6 +13,8 @@ class StrategyContext:
     candles: CandleSeries
 
     indicators: dict[str, IndicatorResult]
+
+    timeframes: MultiTimeframeContext | None = None
 
     def get_indicator(
         self,

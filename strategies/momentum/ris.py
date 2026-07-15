@@ -114,3 +114,17 @@ class RSIStrategy(BaseStrategy):
             strategy=self.name,
             candle=candle,
         )
+    @property
+    def requires_higher_timeframe_confirmation(
+        self,
+    ) -> bool:
+
+        return False
+
+
+    @property
+    def confirmation_timeframes(
+        self,
+    ):
+
+        return ()
