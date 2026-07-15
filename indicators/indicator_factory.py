@@ -2,12 +2,14 @@ from indicators.sma import SimpleMovingAverage
 from indicators.rsi import RelativeStrengthIndex
 from indicators.ema import ExponentialMovingAverage
 from indicators.base_indicator import BaseIndicator
+from indicators.atr import AverageTrueRange
 class IndicatorFactory:
 
     _registry: dict[str, type[BaseIndicator]] = {
         "SMA": SimpleMovingAverage,
         "EMA": ExponentialMovingAverage,
         "RSI": RelativeStrengthIndex,
+        "ATR": AverageTrueRange,
     }
     
     @classmethod
