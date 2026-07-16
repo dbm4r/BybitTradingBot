@@ -13,12 +13,11 @@ class EntryExecutor:
     def execute(
         engine,
         timestamp,
-        price
+        price,
     ):
         engine.state.set_state(
             EngineState.PLACING_ORDER
         )
-
 
         fee = (
             engine.portfolio.cash
@@ -30,32 +29,33 @@ class EntryExecutor:
         )
 
         engine.total_fees += fee
+
         price = SlippageCalculator.apply_buy(
             price=price,
-            slippage_percent=engine.settings.slippage_percent
+            slippage_percent=engine.settings.slippage_percent,
         )
 
         stop_price = StopLoss.percentage(
             entry_price=price,
-            stop_percent=engine.settings.stop_loss_percent
+            stop_percent=engine.settings.stop_loss_percent,
         )
 
         take_profit_price = TakeProfit.percentage(
             entry_price=price,
-            take_profit_percent=engine.settings.take_profit_percent
+            take_profit_percent=engine.settings.take_profit_percent,
         )
 
         quantity = PositionSizer.fixed_risk(
-            account_balance=cash_after_fee,
+            available_capital=cash_after_fee,
             risk_percent=engine.settings.risk_per_trade,
             entry_price=price,
-            stop_price=stop_price
+            stop_price=stop_price,
         )
 
         quantity = PositionValidator.validate(
             quantity=quantity,
             price=price,
-            available_cash=cash_after_fee
+            available_cash=cash_after_fee,
         )
 
         quantity = engine.exchange.instrument.round_quantity(
@@ -73,32 +73,33 @@ class EntryExecutor:
             price,
         )
 
-        
         print("\n========== ORDER ==========")
         print(f"Price    : {price}")
         print(f"Quantity : {quantity}")
         print("===========================\n")
+
         order = MarketOrder(
             symbol=engine.symbol,
             side="BUY",
             quantity=quantity,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         engine.order_manager.submit(
             engine,
-            order
+            order,
         )
 
         result = engine.exchange.place_market_order(
             symbol=order.symbol,
             side=order.side,
-            quantity=order.quantity
+            quantity=order.quantity,
         )
 
         if not result.success:
-            raise RuntimeError(result.error)
-
+            raise RuntimeError(
+                result.error
+            )
 
         ExecutionCoordinator.process_entry(
             engine=engine,
@@ -109,13 +110,15 @@ class EntryExecutor:
             quantity=quantity,
             cash_after_fee=cash_after_fee,
             stop_price=stop_price,
-            take_profit_price=take_profit_price
+            take_profit_price=take_profit_price,
         )
+
         engine.exchange.set_trading_stop(
             symbol=order.symbol,
             take_profit=take_profit_price,
-            stop_loss=stop_price
+            stop_loss=stop_price,
         )
+
         engine.state.set_state(
             EngineState.IN_POSITION
         )

@@ -91,7 +91,7 @@ class Backtester:
                 interval=self.interval,
             )
 
-            engine.sell(
+            engine.close_position(
                 timestamp=last_candle.timestamp,
                 price=last_candle.close,
                 exit_reason="End of Backtest",

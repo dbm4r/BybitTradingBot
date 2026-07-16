@@ -26,7 +26,7 @@ class DecisionProcessor:
 
                 if not position.is_open():
 
-                    engine.buy(
+                    engine.open_position(
                         timestamp=candle.timestamp,
                         price=candle.close,
                     )
@@ -35,7 +35,7 @@ class DecisionProcessor:
 
                 if position.is_open():
 
-                    engine.sell(
+                    engine.close_position(
                         timestamp=candle.timestamp,
                         price=candle.close,
                         exit_reason=decision.reason,
