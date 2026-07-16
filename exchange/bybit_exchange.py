@@ -235,6 +235,21 @@ class BybitExchange(Exchange):
             take_profit=take_profit,
             stop_loss=stop_loss
         )
+    def get_symbols(self):
+
+        return self.client.market.get_instruments()
+    def get_candles(
+        self,
+        symbol,
+        interval,
+        limit=200,
+    ):
+
+        return self.client.market.get_kline(
+            symbol=symbol,
+            interval=interval,
+            limit=limit,
+        )
         
 
 

@@ -91,3 +91,23 @@ class PaperExchange(Exchange):
     ):
 
         return None
+    def get_candles(
+        self,
+        symbol,
+        interval,
+        limit=200,
+    ):
+
+        return {
+            "result": {
+                "list": []
+            }
+        }
+
+    def get_symbols(
+        self,
+    ):
+
+        return [
+            self.instrument.symbol
+        ]   

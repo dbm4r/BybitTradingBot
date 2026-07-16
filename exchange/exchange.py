@@ -8,7 +8,7 @@ class Exchange(ABC):
         self,
         symbol: str,
         side: str,
-        quantity: float
+        quantity: float,
     ):
         pass
 
@@ -18,14 +18,14 @@ class Exchange(ABC):
         symbol: str,
         side: str,
         quantity: float,
-        price: float
+        price: float,
     ):
         pass
 
     @abstractmethod
     def cancel_order(
         self,
-        order_id: str
+        order_id: str,
     ):
         pass
 
@@ -39,4 +39,25 @@ class Exchange(ABC):
 
     @abstractmethod
     def get_open_orders(self):
+        pass
+
+    # -------- NEW --------
+
+    @abstractmethod
+    def get_symbols(self):
+        """
+        Return every tradable symbol.
+        """
+        pass
+
+    @abstractmethod
+    def get_candles(
+        self,
+        symbol: str,
+        interval: str,
+        limit: int,
+    ):
+        """
+        Return historical candles.
+        """
         pass
