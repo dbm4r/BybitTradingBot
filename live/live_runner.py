@@ -2,7 +2,7 @@ from engine.engine_state import EngineState
 from live.candle_provider import CandleProvider
 from live.scheduler import Scheduler
 from pipeline.trading_pipeline import TradingPipeline
-from trading.trading_session import TradingSession
+from sessions.trading_session import TradingSession
 
 
 class LiveRunner:

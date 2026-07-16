@@ -2,7 +2,7 @@ from datetime import datetime
 
 from models.candle import Candle
 from pipeline.trading_pipeline import TradingPipeline
-from trading.trading_session import TradingSession
+from sessions.trading_session import TradingSession
 from strategies.trend.sma_crossover import (
     SMACrossoverStrategy,
 )

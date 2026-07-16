@@ -6,7 +6,7 @@ from backtesting.performance.equity_curve import EquityCurve
 from backtesting.performance.risk_metrics import RiskMetrics
 from market.candle_factory import CandleFactory
 from pipeline.trading_pipeline import TradingPipeline
-from trading.trading_session import TradingSession
+from sessions.trading_session import TradingSession
 
 
 class Backtester:
