@@ -1,5 +1,5 @@
 from strategies.trend.sma_crossover import SMACrossoverStrategy
-from strategies.momentum.ris import RSIStrategy
+from strategies.momentum.rsi import RSIStrategy
 from strategies.trend.ema_crossover import EMACrossoverStrategy
 
 
