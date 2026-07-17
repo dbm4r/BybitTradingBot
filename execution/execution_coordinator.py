@@ -1,7 +1,17 @@
 from execution.fill_processor import FillProcessor
-
+from execution.decision_processor import DecisionProcessor
 
 class ExecutionCoordinator:
+    @staticmethod
+    def execute(
+        engine,
+        decision,
+    ) -> None:
+
+        DecisionProcessor.process(
+            engine=engine,
+            decision=decision,
+        )
 
     @staticmethod
     def process_entry(

@@ -2,7 +2,7 @@ from core.settings import Settings
 from backtesting.execution_engine import ExecutionEngine
 from backtesting.portfolio import Portfolio
 from strategies.trend.ema_crossover import (
-    EMACrossoverStrategy
+    EMACrossover
 )
 
 settings = Settings()
@@ -13,7 +13,7 @@ portfolio = Portfolio(
     settings.initial_balance
 )
 
-strategy = EMACrossoverStrategy()
+strategy = EMACrossover()
 
 engine = ExecutionEngine(
     portfolio=portfolio,

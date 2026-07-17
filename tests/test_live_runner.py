@@ -6,7 +6,7 @@ from bybit.bybit_client import BybitClient
 
 from live.live_runner import LiveRunner
 
-from strategies.trend.ema_crossover import EMACrossoverStrategy
+from strategies.trend.ema_crossover import EMACrossover
 
 
 settings = Settings()
@@ -15,7 +15,7 @@ portfolio = Portfolio(
     initial_balance=settings.initial_balance
 )
 
-strategy = EMACrossoverStrategy(
+strategy = EMACrossover(
     fast_period=20,
     slow_period=50
 )

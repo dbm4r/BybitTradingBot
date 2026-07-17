@@ -2,7 +2,7 @@ from datetime import datetime
 
 from models.candle import Candle
 from models.candle_series import CandleSeries
-from strategies.trend.sma_crossover import SMACrossoverStrategy
+from strategies.trend.sma_crossover import SMACrossover
 from strategies.framework.strategy_runner import StrategyRunner
 
 
@@ -41,7 +41,7 @@ for price in prices:
         )
     )
 
-strategy = SMACrossoverStrategy(
+strategy = SMACrossover(
     fast_period=3,
     slow_period=5,
 )

@@ -8,7 +8,7 @@ from strategies.framework.strategy_context import StrategyContext
 from strategies.framework.strategy_decision import StrategyDecision
 from market.timeframe import Timeframe
 
-class EMACrossoverStrategy(BaseStrategy):
+class EMACrossover(BaseStrategy):
 
     def __init__(
         self,

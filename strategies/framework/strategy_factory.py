@@ -1,13 +1,13 @@
-from strategies.trend.sma_crossover import SMACrossoverStrategy
+from strategies.trend.sma_crossover import SMACrossover
 from strategies.momentum.rsi import RSIStrategy
-from strategies.trend.ema_crossover import EMACrossoverStrategy
+from strategies.trend.ema_crossover import EMACrossover
 
 
 class StrategyFactory:
 
     _strategies = {
-        "SMA": SMACrossoverStrategy,
-        "EMA": EMACrossoverStrategy,
+        "SMA": SMACrossover,
+        "EMA": EMACrossover,
         "RSI": RSIStrategy,
     }
 

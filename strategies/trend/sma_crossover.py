@@ -8,7 +8,7 @@ from strategies.framework.strategy_context import StrategyContext
 from strategies.framework.strategy_decision import StrategyDecision
 
 
-class SMACrossoverStrategy(BaseStrategy):
+class SMACrossover(BaseStrategy):
 
     def __init__(
         self,

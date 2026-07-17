@@ -3,7 +3,7 @@ from datetime import datetime
 from models.candle import Candle
 from models.candle_series import CandleSeries
 from pipeline.trading_pipeline import TradingPipeline
-from strategies.trend.sma_crossover import SMACrossoverStrategy
+from strategies.trend.sma_crossover import SMACrossover
 
 
 series = CandleSeries(
@@ -28,7 +28,7 @@ for i in range(60):
     )
 
 pipeline = TradingPipeline(
-    strategy=SMACrossoverStrategy(),
+    strategy=SMACrossover(),
     symbol="BTCUSDT",
     interval="1",
 )

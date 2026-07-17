@@ -14,7 +14,7 @@ from portfolio.portfolio_formatter import (
     PortfolioFormatter,
 )
 from strategies.trend.sma_crossover import (
-    SMACrossoverStrategy,
+    SMACrossover,
 )
 
 print(
@@ -23,7 +23,7 @@ print(
 
 manager = PortfolioManager()
 
-strategy = SMACrossoverStrategy()
+strategy = SMACrossover()
 
 manager.register_asset(
     symbol="BTCUSDT",

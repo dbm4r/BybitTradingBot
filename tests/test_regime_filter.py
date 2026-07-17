@@ -1,10 +1,10 @@
 from market.market_regime import MarketRegime
 from market.regime_filter import RegimeFilter
 from market.regime_result import RegimeResult
-from strategies.trend.ema_crossover import EMACrossoverStrategy
+from strategies.trend.ema_crossover import EMACrossover
 
 
-strategy = EMACrossoverStrategy(
+strategy = EMACrossover(
     fast_period=9,
     slow_period=21,
 )

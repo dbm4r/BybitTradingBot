@@ -3,11 +3,11 @@ from datetime import datetime
 from models.candle import Candle
 from pipeline.trading_pipeline import TradingPipeline
 from strategies.trend.sma_crossover import (
-    SMACrossoverStrategy,
+    SMACrossover,
 )
 
 pipeline = TradingPipeline(
-    strategy=SMACrossoverStrategy(
+    strategy=SMACrossover(
         fast_period=3,
         slow_period=5,
     ),

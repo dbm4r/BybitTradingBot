@@ -1,12 +1,12 @@
 from portfolio.portfolio_manager import PortfolioManager
-from strategies.trend.sma_crossover import SMACrossoverStrategy
+from strategies.trend.sma_crossover import SMACrossover
 
 
 manager = PortfolioManager()
 
 manager.register_asset(
     symbol="BTCUSDT",
-    strategy=SMACrossoverStrategy(
+    strategy=SMACrossover(
         fast_period=5,
         slow_period=20,
     ),
@@ -14,7 +14,7 @@ manager.register_asset(
 
 manager.register_asset(
     symbol="ETHUSDT",
-    strategy=SMACrossoverStrategy(
+    strategy=SMACrossover(
         fast_period=5,
         slow_period=20,
     ),
@@ -22,7 +22,7 @@ manager.register_asset(
 
 manager.register_asset(
     symbol="SOLUSDT",
-    strategy=SMACrossoverStrategy(
+    strategy=SMACrossover(
         fast_period=5,
         slow_period=20,
     ),

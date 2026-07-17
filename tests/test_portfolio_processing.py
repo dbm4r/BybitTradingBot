@@ -2,7 +2,7 @@ from core.config import Config
 from data.data_manager import DataManager
 from market.candle_factory import CandleFactory
 from portfolio.portfolio_manager import PortfolioManager
-from strategies.trend.sma_crossover import SMACrossoverStrategy
+from strategies.trend.sma_crossover import SMACrossover
 
 
 config = Config()
@@ -19,7 +19,7 @@ for symbol in symbols:
 
     manager.register_asset(
         symbol=symbol,
-        strategy=SMACrossoverStrategy(
+        strategy=SMACrossover(
             fast_period=5,
             slow_period=20,
         ),
