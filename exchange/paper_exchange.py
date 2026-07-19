@@ -1,5 +1,5 @@
 from uuid import uuid4
-
+from exchange.exchange_symbol import ExchangeSymbol
 from exchange.exchange import Exchange
 from exchange.exchange_order import ExchangeOrder
 from exchange.exchange_result import ExchangeResult
@@ -91,23 +91,4 @@ class PaperExchange(Exchange):
     ):
 
         return None
-    def get_candles(
-        self,
-        symbol,
-        interval,
-        limit=200,
-    ):
-
-        return {
-            "result": {
-                "list": []
-            }
-        }
-
-    def get_symbols(
-        self,
-    ):
-
-        return [
-            self.instrument.symbol
-        ]   
+    

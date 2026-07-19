@@ -15,7 +15,7 @@ class MarketScanner:
         self.analyzer = analyzer
         self.ranker = ScoreRanker()
 
-    def scan(
+    def scan( 
         self,
     ):
 

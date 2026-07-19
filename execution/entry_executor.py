@@ -58,18 +58,22 @@ class EntryExecutor:
             available_cash=cash_after_fee,
         )
 
-        quantity = engine.exchange.instrument.round_quantity(
+        instrument = engine.exchange.get_instrument(
+            engine.symbol,
+        )
+
+        quantity = instrument.round_quantity(
             quantity,
         )
 
-        if not engine.exchange.instrument.validate_quantity(
+        if not instrument.validate_quantity(
             quantity,
         ):
             raise RuntimeError(
                 f"Invalid quantity: {quantity}"
             )
 
-        price = engine.exchange.instrument.round_price(
+        price = instrument.round_price(
             price,
         )
 
@@ -95,6 +99,10 @@ class EntryExecutor:
             side=order.side,
             quantity=order.quantity,
         )
+        print("\n========== EXCHANGE RESULT ==========")
+        print("Success :", result.success)
+        print("Order ID:", result.order.order_id if result.order else None)
+        print("=====================================\n")
 
         if not result.success:
             raise RuntimeError(
@@ -112,13 +120,20 @@ class EntryExecutor:
             stop_price=stop_price,
             take_profit_price=take_profit_price,
         )
+        print("\n========== EXCHANGE POSITIONS ==========")
 
-        engine.exchange.set_trading_stop(
+        positions = engine.exchange.get_positions()
+
+        print(positions)
+
+        print("========================================\n")
+
+        print("\n========== OPEN ORDERS ==========")
+
+        orders = engine.exchange.get_open_orders(
             symbol=order.symbol,
-            take_profit=take_profit_price,
-            stop_loss=stop_price,
         )
 
-        engine.state.set_state(
-            EngineState.IN_POSITION
-        )
+        print(orders)
+
+        print("=================================\n")

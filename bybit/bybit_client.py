@@ -1,11 +1,18 @@
-import requests
-import hashlib
-import hmac
-import time
-from bybit.endpoints.market import MarketEndpoints
-from bybit.endpoints.account import AccountEndpoints
-from bybit.endpoints.trade import TradeEndpoints
 import json
+from bybit.validators.response_validator import (
+    ResponseValidator,
+)
+from config import BYBIT_TESTNET
+from bybit.exception_mapper import BybitExceptionMapper
+from bybit.endpoints.account import AccountEndpoints
+from bybit.endpoints.market import MarketEndpoints
+from bybit.endpoints.trade import TradeEndpoints
+from bybit.http.authenticator import BybitAuthenticator
+from bybit.http.http_client import HttpClient
+from bybit.http.request_logger import RequestLogger
+from bybit.http.response_logger import ResponseLogger
+from bybit.http.signer import BybitSigner
+
 
 class BybitClient:
 
@@ -13,12 +20,27 @@ class BybitClient:
         self,
         api_key: str,
         api_secret: str,
-        base_url: str
     ):
 
         self.api_key = api_key
         self.api_secret = api_secret
-        self.base_url = base_url
+
+        if BYBIT_TESTNET:
+            self.base_url = "https://api-testnet.bybit.com"
+        else:
+            self.base_url = "https://api.bybit.com"
+
+        self.http = HttpClient()
+
+        self.signer = BybitSigner(
+            api_secret=api_secret,
+        )
+
+        self.authenticator = BybitAuthenticator(
+            api_key=api_key,
+            signer=self.signer,
+        )
+
         self.market = MarketEndpoints(self)
         self.account = AccountEndpoints(self)
         self.trade = TradeEndpoints(self)
@@ -29,7 +51,7 @@ class BybitClient:
         endpoint: str,
         params: dict | None = None,
         body: dict | None = None,
-        auth: bool = False
+        auth: bool = False,
     ):
 
         url = self.base_url + endpoint
@@ -38,132 +60,36 @@ class BybitClient:
 
         if auth:
 
-            timestamp = self.timestamp()
-
-            if method.upper() == "GET":
-
-                query = ""
-
-                if params:
-
-                    query = "&".join(
-                        f"{key}={value}"
-                        for key, value in params.items()
-                    )
-
-                payload = (
-                    timestamp
-                    + self.api_key
-                    + "5000"
-                    + query
-                )
-
-            else:
-
-                json_body = json.dumps(
-                    body or {},
-                    separators=(",", ":")
-                )
-
-                payload = (
-                    timestamp
-                    + self.api_key
-                    + "5000"
-                    + json_body
-                )
-
-            signature = self.sign(payload)
-
-            headers = self.headers(
-                signature,
-                timestamp
+            headers = self.authenticator.create_headers(
+                method=method,
+                params=params,
+                body=body,
             )
 
-        request_kwargs = {
-            "method": method,
-            "url": url,
-            "headers": headers
-        }
-
-        if params is not None:
-            request_kwargs["params"] = params
-
-        if body is not None:
-
-            json_body = json.dumps(
-                body,
-                separators=(",", ":")
-            )
-
-            request_kwargs["data"] = json_body
-        print("\n========== BYBIT REQUEST ==========")
-
-        print("METHOD:", method)
-
-        print("URL:", url)
-
-        if params:
-            print("PARAMS:", params)
-
-        if body:
-            print("BODY:", json_body)
-
-        if auth:
-            print("PAYLOAD:", payload)
-            print("SIGNATURE:", signature)
-
-        print("HEADERS:", headers)
-
-        print("===================================\n")
-
-        response = requests.request(
-            **request_kwargs
+        RequestLogger.log(
+            method=method,
+            url=url,
+            headers=headers,
+            params=params,
+            body=body,
         )
 
-        response.raise_for_status()
-
-        data = response.json()
-
-        print("\n========== BYBIT RESPONSE ==========")
-        print(json.dumps(data, indent=4))
-        print("====================================\n")
-
-        return data
-    
-    def timestamp(self):
-
-        return str(
-            int(time.time() * 1000)
+        response = self.http.send(
+            method=method,
+            url=url,
+            headers=headers,
+            params=params,
+            body=body,
         )
-    def sign(
-        self,
-        payload: str
-    ):
 
-        return hmac.new(
-            self.api_secret.encode("utf-8"),
-            payload.encode("utf-8"),
-            hashlib.sha256
-        ).hexdigest()
-    def headers(
-        self,
-        signature,
-        timestamp
-    ):
+        ResponseLogger.log(
+            response,
+        )
+        ResponseValidator.validate(
+            response,
+        )
+        BybitExceptionMapper.raise_for_response(
+            response,
+        )
 
-        return {
-
-            "X-BAPI-API-KEY": self.api_key,
-
-            "X-BAPI-TIMESTAMP": timestamp,
-
-            "X-BAPI-RECV-WINDOW": "5000",
-
-            "X-BAPI-SIGN": signature,
-
-            "X-BAPI-SIGN-TYPE": "2",
-
-            "Content-Type": "application/json"
-
-        }
-    
+        return response

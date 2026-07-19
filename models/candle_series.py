@@ -147,6 +147,11 @@ class CandleSeries:
     @property
     def count(self) -> int:
         return len(self._candles)
+    def clear(
+        self,
+    ) -> None:
+
+        self._candles.clear()
 
     def __len__(self) -> int:
         return len(self._candles)

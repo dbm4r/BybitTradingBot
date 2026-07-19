@@ -1,4 +1,4 @@
-from exchange.exchange import Exchange
+from market.market_data_provider import MarketDataProvider
 from exchange.exchange_symbol import ExchangeSymbol
 from scanner.context_builder import ContextBuilder
 from scanner.candle_loader import CandleLoader
@@ -6,14 +6,16 @@ from scanner.market_analyzer import MarketAnalyzer
 from scanner.market_analysis import MarketAnalysis
 from scanner.analysis_result import AnalysisResult
 from scanner.scoring.overall_scorer import OverallScorer
+
+
 class SymbolAnalyzer:
 
     def __init__(
         self,
-        exchange: Exchange,
+        provider: MarketDataProvider,
     ):
 
-        self.exchange = exchange
+        self.provider = provider
         self.scorer = OverallScorer()
         self.market_analyzer = MarketAnalyzer()
 
@@ -24,7 +26,7 @@ class SymbolAnalyzer:
         limit: int = 200,
     ):
 
-        response = self.exchange.get_candles(
+        response = self.provider.get_candles(
             symbol=symbol.symbol,
             interval=interval,
             limit=limit,
@@ -35,9 +37,10 @@ class SymbolAnalyzer:
             symbol=symbol.symbol,
             interval=interval,
         )
+
     def build_context(
         self,
-        symbol,
+        symbol: ExchangeSymbol,
         interval: str,
         limit: int = 200,
     ):
@@ -51,9 +54,10 @@ class SymbolAnalyzer:
         return ContextBuilder.build(
             candles
         )
+
     def analyze_market(
         self,
-        symbol,
+        symbol: ExchangeSymbol,
         interval: str,
         limit: int = 200,
     ) -> MarketAnalysis:
@@ -74,9 +78,10 @@ class SymbolAnalyzer:
             context=context,
             candles=candles,
         )
+
     def analyze(
         self,
-        symbol,
+        symbol: ExchangeSymbol,
         interval: str = "1",
         limit: int = 200,
     ) -> AnalysisResult:

@@ -1,4 +1,4 @@
-from exchange.exchange import Exchange
+from market.market_data_provider import MarketDataProvider
 from scanner.candle_loader import CandleLoader
 from market.market_data_service import MarketDataService
 
@@ -7,11 +7,11 @@ class MarketDataLoader:
 
     def __init__(
         self,
-        exchange: Exchange,
+        provider: MarketDataProvider,
         service: MarketDataService,
     ):
 
-        self.exchange = exchange
+        self.provider = provider
         self.service = service
 
     def load(
@@ -21,7 +21,7 @@ class MarketDataLoader:
         limit: int = 200,
     ):
 
-        response = self.exchange.get_candles(
+        response = self.provider.get_candles(
             symbol=symbol,
             interval=interval,
             limit=limit,
@@ -48,3 +48,14 @@ class MarketDataLoader:
             )
 
         return series
+
+    def get(
+        self,
+        symbol: str,
+        interval: str,
+    ):
+
+        return self.service.get_series(
+            symbol=symbol,
+            interval=interval,
+        )

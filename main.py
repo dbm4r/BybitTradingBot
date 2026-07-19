@@ -11,7 +11,12 @@ from validation.walk_forward import WalkForwardValidator
 from validation.walk_forward_logger import WalkForwardLogger
 from validation.monte_carlo import MonteCarloValidator
 from validation.monte_carlo_logger import MonteCarloLogger
-
+from exchange.bybit_exchange import BybitExchange
+from config import (
+    BYBIT_API_KEY,
+    BYBIT_API_SECRET,
+    BYBIT_BASE_URL,
+)
 def run_single_backtest(
     config,
     dataframe
@@ -171,7 +176,16 @@ def main():
 
     config = Config()
 
-    manager = DataManager()
+    exchange = BybitExchange(
+        api_key=BYBIT_API_KEY,
+        api_secret=BYBIT_API_SECRET,
+        base_url=BYBIT_BASE_URL,
+        symbol=config.symbol,
+    )
+
+    manager = DataManager(
+        exchange=exchange,
+    )
 
     dataframe = manager.download_historical_data(
         symbol=config.symbol,

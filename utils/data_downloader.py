@@ -1,45 +1,50 @@
 import pandas as pd
 
+from models.candle import Candle
+
 
 class DataDownloader:
 
     @staticmethod
-    def save_to_csv(df, filename):
-        df.to_csv(filename, index=False)
-    def create_dataframe(response):
-        candles = response["result"]["list"]
+    def save_to_csv(
+        df: pd.DataFrame,
+        filename: str,
+    ) -> None:
 
-        columns = [
-            "timestamp",
-            "open",
-            "high",
-            "low",
-            "close",
-            "volume",
-            "turnover"
-        ]
-
-        df = pd.DataFrame(candles, columns=columns)
-
-        # Convert timestamp
-        df["timestamp"] = pd.to_datetime(
-            df["timestamp"].astype("int64"),
-            unit="ms"
+        df.to_csv(
+            filename,
+            index=False,
         )
 
-        # Convert numeric columns
-        numeric_columns = [
-            "open",
-            "high",
-            "low",
-            "close",
-            "volume",
-            "turnover"
-        ]
+    @staticmethod
+    def from_candles(
+        candles: list[Candle],
+    ) -> pd.DataFrame:
 
-        df[numeric_columns] = df[numeric_columns].astype(float)
-        df = df.sort_values("timestamp").reset_index(drop=True)
+        rows = []
+
+        for candle in candles:
+
+            rows.append(
+                {
+                    "timestamp": candle.timestamp,
+                    "open": candle.open,
+                    "high": candle.high,
+                    "low": candle.low,
+                    "close": candle.close,
+                    "volume": candle.volume,
+                    "turnover": candle.turnover,
+                }
+            )
+
+        df = pd.DataFrame(rows)
+
+        if df.empty:
+            return df
+
+        df = (
+            df.sort_values("timestamp")
+              .reset_index(drop=True)
+        )
 
         return df
-    
-

@@ -1,4 +1,5 @@
 from exchange.exchange import Exchange
+from market.market_data_provider import MarketDataProvider
 from runtime.cycle.opportunity_processor import OpportunityProcessor
 from runtime.cycle.trading_context import TradingContext
 from runtime.cycle.trading_cycle import TradingCycle
@@ -7,16 +8,18 @@ from strategies.framework.base_strategy import BaseStrategy
 from market.market_data_loader import MarketDataLoader
 from market.market_data_service import MarketDataService
 from scanner.universe import SymbolUniverse
-from exchange.exchange_symbol import ExchangeSymbol
 from scanner.symbol_analyzer import SymbolAnalyzer
-from scanner.market_scanner import MarketScanner
 from portfolio.portfolio_manager import PortfolioManager
 from execution.execution_coordinator import ExecutionCoordinator
+
+
 class TradingRuntimeBuilder:
 
     def __init__(self):
 
         self._exchange: Exchange | None = None
+
+        self._market_data: MarketDataProvider | None = None
 
         self._strategy: BaseStrategy | None = None
 
@@ -24,9 +27,6 @@ class TradingRuntimeBuilder:
 
         self._interval = "1"
 
-        self._scanner: MarketScanner | None = None
-
-        self._processor: OpportunityProcessor | None = None
         self._market_data_service = None
         self._market_data_loader = None
         self._universe = None
@@ -42,6 +42,15 @@ class TradingRuntimeBuilder:
     ):
 
         self._exchange = exchange
+
+        return self
+
+    def market_data(
+        self,
+        provider: MarketDataProvider,
+    ):
+
+        self._market_data = provider
 
         return self
 
@@ -72,37 +81,18 @@ class TradingRuntimeBuilder:
 
         return self
 
-
-    def build_context(
-        self,
-    ) -> TradingContext:
-
-        return TradingContext(
-            scanner=self.build_market_scanner(),
-            processor=self.build_processor(),
-        )
-
-    def build_processor(
-        self,
-    ) -> OpportunityProcessor:
-
-        if self._processor is None:
-
-            self._processor = (
-                OpportunityProcessor(
-                    portfolio=self.build_portfolio(),
-                    execution=self.build_execution(),
-                    market_loader=self.build_market_data_loader(),
-                )
-            )
-
-        return self._processor
-
     def build_exchange(
         self,
-    ):
+    ) -> Exchange:
 
         return self._exchange
+
+    def build_market_data_provider(
+        self,
+    ) -> MarketDataProvider:
+
+        return self._market_data
+
     def build_market_data_service(
         self,
     ) -> MarketDataService:
@@ -123,12 +113,13 @@ class TradingRuntimeBuilder:
 
             self._market_data_loader = (
                 MarketDataLoader(
-                    exchange=self.build_exchange(),
+                    provider=self.build_market_data_provider(),
                     service=self.build_market_data_service(),
                 )
             )
 
         return self._market_data_loader
+
     def build_symbol_universe(
         self,
     ) -> SymbolUniverse:
@@ -137,23 +128,24 @@ class TradingRuntimeBuilder:
 
             self._universe = SymbolUniverse()
 
-            for symbol in self._symbols:
+            available = {
+                symbol.symbol: symbol
+                for symbol in self.build_market_data_provider().get_symbols()
+            }
 
-                self._universe.add(
-                    ExchangeSymbol(
-                        symbol=symbol,
-                        base_coin="",
-                        quote_coin="USDT",
-                        status="Trading",
-                        tick_size=0.0,
-                        qty_step=0.0,
-                        min_order_qty=0.0,
-                        max_order_qty=0.0,
-                        is_tradable=True,
+            for name in self._symbols:
+
+                symbol = available.get(name)
+
+                if symbol is None:
+                    raise ValueError(
+                        f"Unknown symbol: {name}"
                     )
-                )
+
+                self._universe.add(symbol)
 
         return self._universe
+
     def build_symbol_analyzer(
         self,
     ) -> SymbolAnalyzer:
@@ -162,11 +154,12 @@ class TradingRuntimeBuilder:
 
             self._symbol_analyzer = (
                 SymbolAnalyzer(
-                    exchange=self.build_exchange(),
+                    provider=self.build_market_data_provider(),
                 )
             )
 
         return self._symbol_analyzer
+
     def build_market_scanner(
         self,
     ) -> MarketScanner:
@@ -181,6 +174,7 @@ class TradingRuntimeBuilder:
             )
 
         return self._market_scanner
+
     def build_portfolio(
         self,
     ) -> PortfolioManager:
@@ -200,7 +194,6 @@ class TradingRuntimeBuilder:
                 )
 
         return self._portfolio_manager
-    
 
     def build_execution(
         self,
@@ -213,6 +206,31 @@ class TradingRuntimeBuilder:
             )
 
         return self._execution
+
+    def build_processor(
+        self,
+    ) -> OpportunityProcessor:
+
+        if self._processor is None:
+
+            self._processor = (
+                OpportunityProcessor(
+                    portfolio=self.build_portfolio(),
+                    execution=self.build_execution(),
+                    market_loader=self.build_market_data_loader(),
+                )
+            )
+
+        return self._processor
+
+    def build_context(
+        self,
+    ) -> TradingContext:
+
+        return TradingContext(
+            scanner=self.build_market_scanner(),
+            processor=self.build_processor(),
+        )
 
     def build_cycle(
         self,

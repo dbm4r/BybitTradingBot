@@ -1,248 +1,242 @@
 from exchange.exchange import Exchange
+from exchange.exchange_operation import ExchangeOperation
 from exchange.exchange_result import ExchangeResult
-from exchange.exchange_order import ExchangeOrder
-from bybit.bybit_client import BybitClient
-from exchange.exchange_balance import ExchangeBalance
-from exchange.exchange_position import ExchangePosition
-from exchange.exchange_trade import ExchangeTrade
 from exchange.exchange_snapshot import ExchangeSnapshot
+from exchange.exchange_symbol import ExchangeSymbol
 from exchange.instrument_service import InstrumentService
 
-class BybitExchange(Exchange):
+from market.market_data_provider import MarketDataProvider
+
+from bybit.bybit_client import BybitClient
+
+from bybit.parsers.balance_parser import BybitBalanceParser
+from bybit.parsers.order_parser import BybitOrderParser
+from bybit.parsers.position_parser import BybitPositionParser
+from bybit.parsers.symbol_parser import BybitSymbolParser
+from bybit.parsers.trade_parser import BybitTradeParser
+
+
+class BybitExchange(
+    Exchange,
+    MarketDataProvider,
+):
 
     def __init__(
         self,
-        api_key,
-        api_secret,
-        base_url,
-        symbol,
+        api_key: str,
+        api_secret: str,
     ):
 
         self.client = BybitClient(
             api_key=api_key,
             api_secret=api_secret,
-            base_url=base_url,
         )
 
-        self.instrument = InstrumentService(
+        self.instrument_service = InstrumentService(
             self.client,
-        ).get(symbol)
+        )
+
+    def get_instrument(
+        self,
+        symbol: str,
+    ):
+
+        return self.instrument_service.get(
+            symbol,
+        )
 
     def place_market_order(
         self,
-        symbol,
-        side,
-        quantity,
-        price=None
+        symbol: str,
+        side: str,
+        quantity: float,
+        price=None,
     ):
 
         response = self.client.trade.place_market_order(
             symbol=symbol,
             side=side,
-            quantity=quantity
+            quantity=quantity,
         )
 
-        if response["retCode"] != 0:
-
-            return ExchangeResult(
-                success=False,
-                order=None,
-                error=response["retMsg"]
-            )
-
-        exchange_order = ExchangeOrder(
-            order_id=response["result"]["orderId"],
+        exchange_order = BybitOrderParser.parse_create_order(
+            response=response,
             symbol=symbol,
             side=side,
             quantity=quantity,
-            status="NEW",
-            average_price=price
         )
 
         return ExchangeResult(
             success=True,
-            order=exchange_order
+            order=exchange_order,
         )
 
     def place_limit_order(
         self,
-        symbol,
-        side,
-        quantity,
-        price
+        symbol: str,
+        side: str,
+        quantity: float,
+        price: float,
     ):
 
         response = self.client.trade.place_limit_order(
             symbol=symbol,
             side=side,
             quantity=quantity,
-            price=price
+            price=price,
         )
 
-        if response["retCode"] != 0:
-
-            return ExchangeResult(
-                success=False,
-                order=None,
-                error=response["retMsg"]
-            )
-
-        exchange_order = ExchangeOrder(
-            order_id=response["result"]["orderId"],
+        exchange_order = BybitOrderParser.parse_create_order(
+            response=response,
             symbol=symbol,
             side=side,
             quantity=quantity,
-            status="NEW",
-            average_price=None
         )
 
         return ExchangeResult(
             success=True,
-            order=exchange_order
+            order=exchange_order,
         )
 
     def cancel_order(
         self,
-        symbol,
-        order_id
+        symbol: str,
+        order_id: str,
     ):
 
-        return self.client.trade.cancel_order(
+        response = self.client.trade.cancel_order(
             symbol=symbol,
-            order_id=order_id
+            order_id=order_id,
         )
 
-    def get_balance(self):
-
-        response = self.client.account.get_wallet_balance()
-
-        account = response["result"]["list"][0]
-
-        return ExchangeBalance(
-            total_equity=float(account["totalEquity"]),
-            wallet_balance=float(account["totalWalletBalance"]),
-            available_balance=float(account["totalAvailableBalance"])
+        return ExchangeOperation(
+            success=True,
+            message=response["retMsg"],
+            raw_response=response,
         )
 
-    def get_positions(self):
-
-        response = self.client.trade.get_positions()
-    
-
-        positions = []
-
-        for item in response["result"]["list"]:
-
-            if float(item["size"]) == 0:
-                continue
-
-            positions.append(
-                ExchangePosition(
-                    symbol=item["symbol"],
-                    side=item["side"],
-                    quantity=float(item["size"]),
-                    average_price=float(item["avgPrice"]),
-                    unrealized_pnl=float(item["unrealisedPnl"])
-                )
-            )
-
-        return positions
-    def get_open_orders(
-        self,
-        symbol=None
-    ):
-
-        response = self.client.trade.get_open_orders(
-            symbol=symbol
-        )
-
-        orders = []
-
-        for item in response["result"]["list"]:
-
-            orders.append(
-                ExchangeOrder(
-                    order_id=item["orderId"],
-                    symbol=item["symbol"],
-                    side=item["side"],
-                    quantity=float(item["qty"]),
-                    status=item["orderStatus"],
-                    average_price=(
-                        float(item["price"])
-                        if item["price"]
-                        else None
-                    )
-                )
-            )
-
-        return orders
-    def get_order(
-        self,
-        order_id
-    ):
-
-        return self.client.trade.get_order(
-            order_id=order_id
-        )
     def amend_order(
         self,
-        symbol,
-        order_id,
-        price=None,
-        quantity=None
+        symbol: str,
+        order_id: str,
+        price: float | None = None,
+        quantity: float | None = None,
     ):
 
-        return self.client.trade.amend_order(
+        response = self.client.trade.amend_order(
             symbol=symbol,
             order_id=order_id,
             price=price,
-            quantity=quantity
+            quantity=quantity,
         )
-    def get_trade_history(self): 
-        response = self.client.trade.get_trade_history() 
-        trades = [] 
-        for item in response["result"]["list"]: 
-            trades.append( 
-                ExchangeTrade( 
-                    trade_id=item["execId"], 
-                    order_id=item["orderId"], 
-                    symbol=item["symbol"], 
-                    side=item["side"], 
-                    quantity=float(item["execQty"]), 
-                    price=float(item["execPrice"]), 
-                    fee=float(item["execFee"]), 
-                    timestamp=item["execTime"] 
-                ) 
-            ) 
-        return trades
-    def create_snapshot(self):
+
+        return ExchangeOperation(
+            success=True,
+            message=response["retMsg"],
+            raw_response=response,
+        )
+
+    def set_trading_stop(
+        self,
+        symbol: str,
+        take_profit: float,
+        stop_loss: float,
+    ):
+
+        response = self.client.trade.set_trading_stop(
+            symbol=symbol,
+            take_profit=take_profit,
+            stop_loss=stop_loss,
+        )
+
+        return ExchangeOperation(
+            success=True,
+            message=response["retMsg"],
+            raw_response=response,
+        )
+
+    def get_balance(
+        self,
+    ):
+
+        response = self.client.account.get_wallet_balance()
+
+        return BybitBalanceParser.parse(
+            response,
+        )
+
+    def get_positions(
+        self,
+    ):
+
+        response = self.client.trade.get_positions()
+
+        return BybitPositionParser.parse_list(
+            response,
+        )
+
+    def get_open_orders(
+        self,
+        symbol: str | None = None,
+    ):
+
+        response = self.client.trade.get_open_orders(
+            symbol=symbol,
+        )
+
+        return BybitOrderParser.parse_open_orders(
+            response,
+        )
+
+    def get_order(
+        self,
+        order_id: str,
+    ):
+
+        response = self.client.trade.get_order(
+            order_id=order_id,
+        )
+
+        return BybitOrderParser.parse_order(
+            response,
+        )
+
+    def get_trade_history(
+        self,
+    ):
+
+        response = self.client.trade.get_trade_history()
+
+        return BybitTradeParser.parse_list(
+            response,
+        )
+
+    def create_snapshot(
+        self,
+    ):
 
         return ExchangeSnapshot(
             balance=self.get_balance(),
             positions=self.get_positions(),
             orders=self.get_open_orders(),
-            trades=self.get_trade_history()
+            trades=self.get_trade_history(),
         )
-    def set_trading_stop(
+
+    def get_symbols(
         self,
-        symbol,
-        take_profit,
-        stop_loss
-    ):
+    ) -> list[ExchangeSymbol]:
 
-        return self.client.trade.set_trading_stop(
-            symbol=symbol,
-            take_profit=take_profit,
-            stop_loss=stop_loss
+        response = self.client.market.get_instruments()
+
+        return BybitSymbolParser.parse_list(
+            response,
         )
-    def get_symbols(self):
 
-        return self.client.market.get_instruments()
     def get_candles(
         self,
-        symbol,
-        interval,
-        limit=200,
+        symbol: str,
+        interval: str,
+        limit: int = 200,
     ):
 
         return self.client.market.get_kline(
@@ -250,9 +244,3 @@ class BybitExchange(Exchange):
             interval=interval,
             limit=limit,
         )
-        
-
-
-
-
-

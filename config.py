@@ -16,3 +16,4 @@ INITIAL_BALANCE = 10000
 
 # Bybit taker fee (0.055%)
 TRADING_FEE = 0.00055
+HTTP_DEBUG = True

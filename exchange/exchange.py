@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from exchange.exchange_symbol import ExchangeSymbol
 
 class Exchange(ABC):
 
@@ -39,25 +39,4 @@ class Exchange(ABC):
 
     @abstractmethod
     def get_open_orders(self):
-        pass
-
-    # -------- NEW --------
-
-    @abstractmethod
-    def get_symbols(self):
-        """
-        Return every tradable symbol.
-        """
-        pass
-
-    @abstractmethod
-    def get_candles(
-        self,
-        symbol: str,
-        interval: str,
-        limit: int,
-    ):
-        """
-        Return historical candles.
-        """
         pass
