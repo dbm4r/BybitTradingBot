@@ -1,19 +1,45 @@
 import os
+
 from dotenv import load_dotenv
 
-# Load variables from the .env file
 load_dotenv()
 
-# Read API credentials
-BYBIT_API_KEY = os.getenv("BYBIT_API_KEY")
-BYBIT_API_SECRET = os.getenv("BYBIT_API_SECRET")
 
-# Demo or live account
-BYBIT_TESTNET = os.getenv("BYBIT_TESTNET", "False").lower() == "true"
+# ==========================================
+# Environment
+# ==========================================
 
-# Trading Settings
-INITIAL_BALANCE = 10000
+BYBIT_API_KEY = os.getenv(
+    "BYBIT_API_KEY",
+    "",
+)
 
-# Bybit taker fee (0.055%)
+BYBIT_API_SECRET = os.getenv(
+    "BYBIT_API_SECRET",
+    "",
+)
+
+BYBIT_TESTNET = (
+    os.getenv(
+        "BYBIT_TESTNET",
+        "False",
+    ).lower()
+    == "true"
+)
+
+HTTP_DEBUG = (
+    os.getenv(
+        "HTTP_DEBUG",
+        "True",
+    ).lower()
+    == "true"
+)
+
+
+# ==========================================
+# Defaults
+# ==========================================
+
+INITIAL_BALANCE = 10_000
+
 TRADING_FEE = 0.00055
-HTTP_DEBUG = True

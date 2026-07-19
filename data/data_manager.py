@@ -1,5 +1,8 @@
 from exchange.exchange import Exchange
+from exchange.exchange_factory import ExchangeFactory
+
 from bybit.parsers.candle_parser import CandleParser
+
 from utils.data_downloader import DataDownloader
 
 
@@ -7,8 +10,12 @@ class DataManager:
 
     def __init__(
         self,
-        exchange: Exchange,
+        exchange: Exchange | None = None,
     ):
+
+        if exchange is None:
+
+            exchange = ExchangeFactory.create()
 
         self.exchange = exchange
 
@@ -65,7 +72,7 @@ class DataManager:
                 )
             )
 
-        df = DataDownloader.from_candles(
+        dataframe = DataDownloader.from_candles(
             candles
         )
 
@@ -75,8 +82,8 @@ class DataManager:
         )
 
         DataDownloader.save_to_csv(
-            df,
+            dataframe,
             filename,
         )
 
-        return df
+        return dataframe

@@ -25,24 +25,27 @@ class MarketAnalyzer:
         self.liquidity_scorer = LiquidityScorer()
         self.overall_scorer = OverallScorer()
 
+    @classmethod
     def analyze(
-        self,
+        cls,
         context,
         candles,
     ) -> MarketAnalysis:
 
-        regime = self.regime_classifier.classify(
+        analyzer = cls()
+
+        regime = analyzer.regime_classifier.classify(
             candles
         )
 
         score = MarketScore(
-            trend=self.trend_scorer.score(
+            trend=analyzer.trend_scorer.score(
                 regime
             ),
-            volatility=self.volatility_scorer.score(
+            volatility=analyzer.volatility_scorer.score(
                 regime
             ),
-            liquidity=self.liquidity_scorer.score(
+            liquidity=analyzer.liquidity_scorer.score(
                 regime
             ),
             confidence=0.0,
@@ -54,8 +57,10 @@ class MarketAnalyzer:
             score=score,
         )
 
-        analysis.score.overall = self.overall_scorer.score(
-            analysis
+        analysis.score.overall = (
+            analyzer.overall_scorer.score(
+                analysis
+            )
         )
 
         return analysis

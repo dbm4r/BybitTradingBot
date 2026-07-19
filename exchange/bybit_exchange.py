@@ -25,6 +25,7 @@ class BybitExchange(
         self,
         api_key: str,
         api_secret: str,
+        **_,
     ):
 
         self.client = BybitClient(

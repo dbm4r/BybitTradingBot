@@ -2,7 +2,9 @@ import json
 
 import requests
 
+from bybit.rate_limit.rate_limiter import RateLimiter
 from bybit.retry.retry_policy import RetryPolicy
+from bybit.timeout.timeout_policy import TimeoutPolicy
 
 
 class HttpClient:
@@ -10,7 +12,8 @@ class HttpClient:
     def __init__(
         self,
         retry_policy: RetryPolicy | None = None,
-        timeout: tuple[int, int] = (5, 30),
+        timeout_policy: TimeoutPolicy | None = None,
+        rate_limiter: RateLimiter | None = None,
     ):
 
         self.retry_policy = (
@@ -18,7 +21,15 @@ class HttpClient:
             or RetryPolicy()
         )
 
-        self.timeout = timeout
+        self.timeout_policy = (
+            timeout_policy
+            or TimeoutPolicy()
+        )
+
+        self.rate_limiter = (
+            rate_limiter
+            or RateLimiter()
+        )
 
     def send(
         self,
@@ -26,7 +37,6 @@ class HttpClient:
         url: str,
         headers: dict | None = None,
         params: dict | None = None,
-
         body: dict | None = None,
     ):
 
@@ -34,7 +44,7 @@ class HttpClient:
             "method": method,
             "url": url,
             "headers": headers,
-            "timeout": self.timeout,
+            "timeout": self.timeout_policy.timeout,
         }
 
         if params is not None:
@@ -46,9 +56,11 @@ class HttpClient:
                 separators=(",", ":"),
             )
 
+        self.rate_limiter.wait()
+
         response = self.retry_policy.execute(
             lambda: requests.request(
-                **request_kwargs
+                **request_kwargs,
             )
         )
 

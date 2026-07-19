@@ -1,12 +1,14 @@
 import json
-from bybit.validators.response_validator import (
-    ResponseValidator,
-)
+
 from config import BYBIT_TESTNET
+
 from bybit.exception_mapper import BybitExceptionMapper
+from bybit.validators.response_validator import ResponseValidator
+
 from bybit.endpoints.account import AccountEndpoints
 from bybit.endpoints.market import MarketEndpoints
 from bybit.endpoints.trade import TradeEndpoints
+
 from bybit.http.authenticator import BybitAuthenticator
 from bybit.http.http_client import HttpClient
 from bybit.http.request_logger import RequestLogger
@@ -20,14 +22,23 @@ class BybitClient:
         self,
         api_key: str,
         api_secret: str,
+        base_url: str | None = None,
+        **_,
     ):
 
         self.api_key = api_key
         self.api_secret = api_secret
 
-        if BYBIT_TESTNET:
+        if base_url is not None:
+
+            self.base_url = base_url
+
+        elif BYBIT_TESTNET:
+
             self.base_url = "https://api-testnet.bybit.com"
+
         else:
+
             self.base_url = "https://api.bybit.com"
 
         self.http = HttpClient()
@@ -41,9 +52,17 @@ class BybitClient:
             signer=self.signer,
         )
 
-        self.market = MarketEndpoints(self)
-        self.account = AccountEndpoints(self)
-        self.trade = TradeEndpoints(self)
+        self.market = MarketEndpoints(
+            self,
+        )
+
+        self.account = AccountEndpoints(
+            self,
+        )
+
+        self.trade = TradeEndpoints(
+            self,
+        )
 
     def request(
         self,
@@ -85,9 +104,11 @@ class BybitClient:
         ResponseLogger.log(
             response,
         )
+
         ResponseValidator.validate(
             response,
         )
+
         BybitExceptionMapper.raise_for_response(
             response,
         )

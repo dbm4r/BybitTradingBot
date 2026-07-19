@@ -1,6 +1,6 @@
 from market.market_regime import MarketRegime
 from market.regime_result import RegimeResult
-
+from scanner.scoring.market_score import MarketScore
 from scanner.market_analysis import MarketAnalysis
 from scanner.scoring.overall_scorer import OverallScorer
 
@@ -14,10 +14,13 @@ analysis = MarketAnalysis(
         volatility=MarketRegime.LOW_VOLATILITY,
         liquidity=MarketRegime.HIGH_LIQUIDITY,
     ),
-    trend_score=90,
-    volatility_score=70,
-    liquidity_score=80,
-    confidence=85,
+    score=MarketScore(
+        trend=90,
+        volatility=70,
+        liquidity=80,
+        confidence=85,
+        overall=0,
+    ),
 )
 
 scorer = OverallScorer()

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from exchange.exchange_trade import ExchangeTrade
 
 
@@ -16,7 +18,9 @@ class BybitTradeParser:
             quantity=float(item["execQty"]),
             price=float(item["execPrice"]),
             fee=float(item["execFee"]),
-            timestamp=item["execTime"],
+            timestamp=datetime.fromtimestamp(
+                int(item["execTime"]) / 1000
+            ),
         )
 
     @classmethod
