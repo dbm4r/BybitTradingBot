@@ -5,28 +5,40 @@ import requests
 
 class RetryPolicy:
 
-    RETRYABLE_STATUS_CODES = {
-        429,
-        500,
-        502,
-        503,
-        504,
-    }
+    def __init__(
+        self,
+        max_retries: int = 3,
+        initial_delay: float = 1.0,
+        multiplier: float = 2.0,
+        retryable_status_codes: set[int] | None = None,
+    ):
 
-    MAX_RETRIES = 3
+        self.max_retries = max_retries
+        self.initial_delay = initial_delay
+        self.multiplier = multiplier
 
-    BACKOFF_SECONDS = 1.0
+        self.retryable_status_codes = (
+            retryable_status_codes
+            or {
+                429,
+                500,
+                502,
+                503,
+                504,
+            }
+        )
 
-    @classmethod
     def execute(
-        cls,
+        self,
         operation,
     ):
+
+        delay = self.initial_delay
 
         last_exception = None
 
         for attempt in range(
-            cls.MAX_RETRIES + 1
+            self.max_retries + 1
         ):
 
             try:
@@ -35,9 +47,8 @@ class RetryPolicy:
 
                 if (
                     response.status_code
-                    in cls.RETRYABLE_STATUS_CODES
+                    in self.retryable_status_codes
                 ):
-
                     raise requests.HTTPError(
                         response=response
                     )
@@ -52,12 +63,11 @@ class RetryPolicy:
 
                 last_exception = exception
 
-                if attempt == cls.MAX_RETRIES:
+                if attempt >= self.max_retries:
                     raise
 
-                time.sleep(
-                    cls.BACKOFF_SECONDS
-                    * (2 ** attempt)
-                )
+                time.sleep(delay)
+
+                delay *= self.multiplier
 
         raise last_exception

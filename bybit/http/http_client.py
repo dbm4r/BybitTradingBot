@@ -7,36 +7,48 @@ from bybit.retry.retry_policy import RetryPolicy
 
 class HttpClient:
 
+    def __init__(
+        self,
+        retry_policy: RetryPolicy | None = None,
+        timeout: tuple[int, int] = (5, 30),
+    ):
+
+        self.retry_policy = (
+            retry_policy
+            or RetryPolicy()
+        )
+
+        self.timeout = timeout
+
     def send(
         self,
         method: str,
         url: str,
-        headers=None,
-        params=None,
-        body=None,
-        timeout=(5, 30),
+        headers: dict | None = None,
+        params: dict | None = None,
+
+        body: dict | None = None,
     ):
 
         request_kwargs = {
             "method": method,
             "url": url,
             "headers": headers,
-            "timeout": timeout,
+            "timeout": self.timeout,
         }
 
         if params is not None:
             request_kwargs["params"] = params
 
         if body is not None:
-
             request_kwargs["data"] = json.dumps(
                 body,
                 separators=(",", ":"),
             )
 
-        response = RetryPolicy.execute(
+        response = self.retry_policy.execute(
             lambda: requests.request(
-                **request_kwargs,
+                **request_kwargs
             )
         )
 

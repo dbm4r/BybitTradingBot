@@ -1,35 +1,59 @@
-from exchange.instrument import Instrument
+from bybit.parsers.instrument_parser import (
+    BybitInstrumentParser,
+)
+
+from exchange.cache.instrument_cache import (
+    InstrumentCache,
+)
 
 
 class InstrumentService:
 
-    def __init__(self, client):
+    def __init__(
+        self,
+        client,
+    ):
 
         self.client = client
 
+        self.cache = InstrumentCache()
+
     def get(
         self,
-        symbol
+        symbol: str,
     ):
 
+        instrument = self.cache.get(
+            symbol,
+        )
+
+        if instrument is not None:
+            return instrument
+
         response = self.client.market.get_instruments(
-            symbol=symbol
+            symbol=symbol,
         )
 
         item = response["result"]["list"][0]
 
-        return Instrument(
-            symbol=item["symbol"],
-            qty_step=float(
-                item["lotSizeFilter"]["qtyStep"]
-            ),
-            min_qty=float(
-                item["lotSizeFilter"]["minOrderQty"]
-            ),
-            max_qty=float(
-                item["lotSizeFilter"]["maxOrderQty"]
-            ),
-            tick_size=float(
-                item["priceFilter"]["tickSize"]
-            )
+        instrument = BybitInstrumentParser.parse(
+            item,
         )
+
+        self.cache.put(
+            instrument,
+        )
+
+        return instrument
+
+    def clear_cache(
+        self,
+    ):
+
+        self.cache.clear()
+
+    def cache_size(
+        self,
+    ):
+
+        return self.cache.size()
