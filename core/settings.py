@@ -4,7 +4,12 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
+from data.cache.cache_type import (
+    CacheType,
+)
+from data.storage.storage_type import (
+    StorageType,
+)
 
 @dataclass
 class Settings:
@@ -64,3 +69,11 @@ class Settings:
         "BYBIT_BASE_URL",
         "",
     )
+    storage_type: StorageType = (
+        StorageType.CSV
+    )
+    cache_type: CacheType = (
+        CacheType.MEMORY
+    )
+
+    cache_size: int = 10

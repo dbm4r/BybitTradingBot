@@ -3,7 +3,7 @@ from exchange.exchange_factory import ExchangeFactory
 
 from bybit.parsers.candle_parser import CandleParser
 
-from utils.data_downloader import DataDownloader
+from data.downloader.historical_downloader import HistoricalDownloader
 
 
 class DataManager:
@@ -72,7 +72,7 @@ class DataManager:
                 )
             )
 
-        dataframe = DataDownloader.from_candles(
+        dataframe = HistoricalDownloader.from_candles(
             candles
         )
 
@@ -81,7 +81,7 @@ class DataManager:
             f"{symbol}_{self._format_interval(interval)}.csv"
         )
 
-        DataDownloader.save_to_csv(
+        HistoricalDownloader.save_to_csv(
             dataframe,
             filename,
         )
