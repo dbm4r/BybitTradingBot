@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-from portfolio.portfolio_manager import PortfolioManager
+from backtesting.portfolio import (
+    Portfolio,
+)
 
 from risk.models.exposure_snapshot import (
     ExposureSnapshot,
@@ -29,7 +31,7 @@ class RiskContext:
 
     position_size: PositionSize
 
-    portfolio: PortfolioManager
+    portfolio: Portfolio
 
     available_capital: float
 

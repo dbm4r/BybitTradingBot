@@ -16,19 +16,14 @@ class DecisionProcessor:
             engine.symbol
         )
 
-        signal = decision.signal
-
-        candle = decision.candle
-
-        match signal:
+        match decision.signal:
 
             case SignalType.OPEN_LONG:
 
                 if not position.is_open():
 
                     engine.open_position(
-                        timestamp=candle.timestamp,
-                        price=candle.close,
+                        decision=decision,
                     )
 
             case SignalType.OPEN_SHORT:
@@ -36,8 +31,8 @@ class DecisionProcessor:
                 if position.is_open():
 
                     engine.close_position(
-                        timestamp=candle.timestamp,
-                        price=candle.close,
+                        timestamp=decision.candle.timestamp,
+                        price=decision.candle.close,
                         exit_reason=decision.reason,
                     )
 
@@ -48,5 +43,5 @@ class DecisionProcessor:
             case _:
 
                 raise ValueError(
-                    f"Unsupported signal: {signal}"
+                    f"Unsupported signal: {decision.signal}"
                 )

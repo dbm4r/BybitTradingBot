@@ -7,25 +7,43 @@ class FillProcessor:
     @staticmethod
     def process_entry_fill(
         engine,
-        order,
-        timestamp,
-        price,
-        quantity,
-        cash_after_fee,
-        stop_price,
-        take_profit_price
+        context,
     ):
+
+        order = context.order
+
+        timestamp = (
+            context.decision.candle.timestamp
+        )
+
+        price = context.entry_price
+
+        quantity = (
+            context.position_size.quantity
+        )
+
+        cash_after_fee = (
+            context.available_capital
+        )
+
+        stop_price = (
+            context.stop_price
+        )
+
+        take_profit_price = (
+            context.take_profit_price
+        )
 
         engine.order_manager.fill(
             engine,
             order,
             quantity,
             price,
-            timestamp
+            timestamp,
         )
 
         position = engine.portfolio.get_position(
-            engine.symbol
+            engine.symbol,
         )
 
         PortfolioService.open_position(
@@ -36,7 +54,7 @@ class FillProcessor:
             timestamp=timestamp,
             cash_after_fee=cash_after_fee,
             stop_price=stop_price,
-            take_profit_price=take_profit_price
+            take_profit_price=take_profit_price,
         )
 
         position_cost = quantity * price

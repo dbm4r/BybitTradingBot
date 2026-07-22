@@ -20,6 +20,15 @@ class RiskEngine:
     ):
 
         self.pipeline = pipeline
+    @classmethod
+    def builder(
+        cls,
+    ):
+        from risk.builders.risk_engine_builder import (
+            RiskEngineBuilder,
+        )
+
+        return RiskEngineBuilder()
 
     def evaluate(
         self,

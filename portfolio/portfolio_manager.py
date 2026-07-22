@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from pipeline.trading_pipeline import TradingPipeline
 from portfolio.asset_context import AssetContext
 from portfolio.asset_registry import AssetRegistry
@@ -9,12 +13,20 @@ from strategies.framework.strategy_decision import (
 from portfolio.capital_allocator import CapitalAllocator
 from portfolio.portfolio_constraints import PortfolioConstraints
 from portfolio.portfolio_guard import PortfolioGuard
-from backtesting.execution_manager import ExecutionManager
 from backtesting.portfolio import Portfolio
 from core.settings import Settings
+
+if TYPE_CHECKING:
+    from backtesting.execution_manager import (
+        ExecutionManager,
+    )
+
+
 class PortfolioManager:
 
-    def __init__(self):
+    def __init__(
+        self,
+    ):
 
         self.settings = Settings()
 
@@ -22,10 +34,7 @@ class PortfolioManager:
             self.settings.initial_balance
         )
 
-        self.execution = ExecutionManager(
-            portfolio=self.portfolio,
-            settings=self.settings,
-        )
+        self.execution: ExecutionManager | None = None
 
         self.assets = AssetRegistry()
 
@@ -39,12 +48,24 @@ class PortfolioManager:
             self.constraints
         )
 
+    def set_execution_manager(
+        self,
+        execution: ExecutionManager,
+    ) -> None:
+
+        self.execution = execution
+
     def register_asset(
         self,
         symbol: str,
         strategy: BaseStrategy,
         interval: str = "1",
     ) -> None:
+
+        if self.execution is None:
+            raise RuntimeError(
+                "ExecutionManager has not been configured."
+            )
 
         if self.assets.exists(symbol):
             raise ValueError(
@@ -69,7 +90,6 @@ class PortfolioManager:
             engine=engine,
         )
 
-
         self.assets.add(asset)
 
     def get_asset(
@@ -83,8 +103,6 @@ class PortfolioManager:
         self,
         symbol: str,
     ) -> None:
-
-        
 
         self.assets.remove(symbol)
 
@@ -101,6 +119,7 @@ class PortfolioManager:
     ) -> int:
 
         return self.assets.count
+
     def process_candle(
         self,
         candle: Candle,
@@ -138,6 +157,7 @@ class PortfolioManager:
         asset.metadata["capital_allocation"] = allocation
 
         return decision
+
     def process_market(
         self,
         candles: list[Candle],

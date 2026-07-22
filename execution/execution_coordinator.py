@@ -2,48 +2,25 @@ from execution.fill_processor import FillProcessor
 from execution.decision_processor import DecisionProcessor
 
 class ExecutionCoordinator:
-    @staticmethod
-    def execute(
-        engine,
-        decision,
-    ) -> None:
-
-        DecisionProcessor.process(
-            engine=engine,
-            decision=decision,
-        )
 
     @staticmethod
     def process_entry(
         engine,
-        order,
-        exchange_result,
-        timestamp,
-        price,
-        quantity,
-        cash_after_fee,
-        stop_price,
-        take_profit_price
+        context,
     ):
 
-        if not exchange_result.success:
+        if not context.exchange_result.success:
             raise RuntimeError(
-                exchange_result.error
+                context.exchange_result.error
             )
 
-        order.exchange_order_id = (
-            exchange_result.order.order_id
+        context.order.exchange_order_id = (
+            context.exchange_result.order.order_id
         )
 
         FillProcessor.process_entry_fill(
             engine=engine,
-            order=order,
-            timestamp=timestamp,
-            price=price,
-            quantity=quantity,
-            cash_after_fee=cash_after_fee,
-            stop_price=stop_price,
-            take_profit_price=take_profit_price
+            context=context,
         )
 
     @staticmethod

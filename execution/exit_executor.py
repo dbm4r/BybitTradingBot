@@ -1,7 +1,22 @@
-from orders.market_order import MarketOrder
-from finance.slippage_calculator import SlippageCalculator
-from execution.execution_coordinator import ExecutionCoordinator
-from engine.engine_state import EngineState
+from engine.engine_state import (
+    EngineState,
+)
+
+from execution.execution_coordinator import (
+    ExecutionCoordinator,
+)
+
+from execution.services.exit_preparation_service import (
+    ExitPreparationService,
+)
+
+from execution.services.exit_order_request_factory import (
+    ExitOrderRequestFactory,
+)
+
+from execution.services.order_submission_service import (
+    OrderSubmissionService,
+)
 
 
 class ExitExecutor:
@@ -11,50 +26,44 @@ class ExitExecutor:
         engine,
         timestamp,
         price,
-        exit_reason
+        exit_reason,
     ):
 
         engine.state.set_state(
             EngineState.EXITING_POSITION
         )
 
-        position = engine.portfolio.get_position(
-            engine.symbol
+        context = (
+            ExitPreparationService.prepare(
+                engine=engine,
+                timestamp=timestamp,
+                price=price,
+                exit_reason=exit_reason,
+            )
         )
 
-        price = SlippageCalculator.apply_sell(
-            price=price,
-            slippage_percent=engine.settings.slippage_percent
+        order = (
+            ExitOrderRequestFactory.create(
+                engine=engine,
+                context=context,
+                timestamp=timestamp,
+            )
         )
 
-        order = MarketOrder(
-            symbol=engine.symbol,
-            side="SELL",
-            quantity=position.quantity,
-            timestamp=timestamp
+        result = (
+            OrderSubmissionService.submit(
+                engine=engine,
+                order=order,
+            )
         )
-
-        engine.order_manager.submit(
-            engine,
-            order
-        )
-
-        result = engine.exchange.place_market_order(
-            symbol=order.symbol,
-            side=order.side,
-            quantity=order.quantity
-        )
-
-        if not result.success:
-            raise RuntimeError(result.error)
 
         ExecutionCoordinator.process_exit(
             engine=engine,
             order=order,
             exchange_result=result,
             timestamp=timestamp,
-            price=price,
-            exit_reason=exit_reason
+            price=context.entry_price,
+            exit_reason=exit_reason,
         )
 
         engine.state.set_state(

@@ -1,15 +1,26 @@
 from risk.risk_manager import RiskManager
+from risk.builders.risk_engine_builder import (
+    RiskEngineBuilder,
+)
+from risk.sizing.fixed_risk_sizer import (
+    FixedRiskSizer,
+)
+
 from orders.order_manager import OrderManager
+
 from execution.entry_executor import EntryExecutor
 from execution.exit_executor import ExitExecutor
-from events.event_bus import EventBus
-from events.event_names import EventNames
-from exchange.exchange_factory import ExchangeFactory
 from execution.execution_state import ExecutionState
 from execution.execution_listener import ExecutionListener
+
+from events.event_bus import EventBus
+from events.event_names import EventNames
+
+from exchange.exchange_factory import ExchangeFactory
 from exchange.exchange_synchronizer import (
     ExchangeSynchronizer,
 )
+
 from engine.state_manager import StateManager
 
 
@@ -22,21 +33,56 @@ class ExecutionEngine:
         symbol,
         strategy,
         exchange_name="BYBIT",
+        position_sizer=None,
+        risk_engine=None,
+        exchange=None,
     ):
 
         self.portfolio = portfolio
         self.settings = settings
 
-        self.exchange = ExchangeFactory.create(
-            exchange_name,
-            settings,
-            symbol,
+        # --------------------------------------------------
+        # Core Engine Dependencies
+        # --------------------------------------------------
+
+        self.position_sizer = (
+            position_sizer
+            or FixedRiskSizer()
         )
+
+        self.risk_engine = (
+            risk_engine
+            or RiskEngineBuilder()
+            .with_default_rules()
+            .build()
+        )
+
+        # --------------------------------------------------
+        # Exchange
+        # --------------------------------------------------
+
+        self.exchange = (
+            exchange
+            or ExchangeFactory.create(
+                exchange_name,
+                settings,
+                symbol,
+            )
+        )
+
+        # --------------------------------------------------
+        # Strategy
+        # --------------------------------------------------
 
         self.symbol = symbol
         self.strategy = strategy
 
+        # --------------------------------------------------
+        # Runtime State
+        # --------------------------------------------------
+
         self.trades = []
+
         self.total_fees = 0
 
         self.risk_manager = RiskManager(
@@ -59,6 +105,10 @@ class ExecutionEngine:
             self,
         )
 
+        # --------------------------------------------------
+        # Event Subscriptions
+        # --------------------------------------------------
+
         self.events.subscribe(
             EventNames.ORDER_SUBMITTED,
             lambda order: print(
@@ -77,14 +127,12 @@ class ExecutionEngine:
 
     def open_position(
         self,
-        timestamp,
-        price,
+        decision,
     ) -> None:
 
         EntryExecutor.execute(
             engine=self,
-            timestamp=timestamp,
-            price=price,
+            decision=decision,
         )
 
     def close_position(
