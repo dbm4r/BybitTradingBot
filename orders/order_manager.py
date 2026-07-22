@@ -1,23 +1,52 @@
-from orders.order_status import OrderStatus
-from execution.execution_router import ExecutionRouter
-from orders.oco_manager import OCOManager
-from events.event_names import EventNames
-from models.candle import Candle
+from execution.execution_router import (
+    ExecutionRouter,
+)
+
+from events.event_names import (
+    EventNames,
+)
+
+from models.candle import (
+    Candle,
+)
+
+from orders.lifecycle.order_lifecycle_manager import (
+    OrderLifecycleManager,
+)
+
+from orders.lifecycle.order_state import (
+    OrderState,
+)
+
+from orders.oco_manager import (
+    OCOManager,
+)
+from orders.models.fill import (
+    Fill,
+)
+
 class OrderManager:
 
     def __init__(self):
+
         self.oco_manager = OCOManager()
 
         self.orders = []
 
-    def submit(self, engine, order):
+    def submit(
+        self,
+        engine,
+        order,
+    ):
+
         engine.events.publish(
             EventNames.ORDER_SUBMITTED,
-            order
+            order,
         )
 
-        self.orders.append(order)
-
+        self.orders.append(
+            order,
+        )
 
         return order
 
@@ -25,60 +54,90 @@ class OrderManager:
         self,
         engine,
         order,
-        quantity,
-        price,
-        timestamp
+        fill: Fill,
     ):
-        order.filled_price = price
-        order.filled_time = timestamp
 
-        order.filled_quantity += quantity
+        order.fills.append(
+            fill,
+        )
 
-        order.remaining_quantity -= quantity
+        order.filled_price = (
+            fill.price
+        )
 
+        order.filled_time = (
+            fill.timestamp
+        )
+
+        order.filled_quantity += (
+            fill.quantity
+        )
+
+        order.remaining_quantity -= (
+            fill.quantity
+        )
         if order.remaining_quantity <= 0:
 
             order.remaining_quantity = 0
-            order.status = OrderStatus.FILLED
+
+            OrderLifecycleManager.transition(
+                order,
+                OrderState.FILLED,
+            )
+
             engine.events.publish(
                 EventNames.ORDER_FILLED,
-                order
+                order,
             )
 
         else:
 
-            order.status = OrderStatus.PARTIALLY_FILLED
-
+            OrderLifecycleManager.transition(
+                order,
+                OrderState.PARTIALLY_FILLED,
+            )
 
         return order
-    def all_orders(self):
+
+    def all_orders(
+        self,
+    ):
 
         return self.orders
+
     def submit_pending(
         self,
         engine,
-        order
+        order,
     ):
 
         engine.events.publish(
             EventNames.ORDER_SUBMITTED,
-            order
+            order,
         )
 
-        self.orders.append(order)
+        self.orders.append(
+            order,
+        )
 
         print(
             f"Pending Limit Order @ {order.limit_price:.2f}"
         )
 
         return order
-    def pending(self):
+
+    def pending(
+        self,
+    ):
 
         return [
             order
             for order in self.orders
-            if order.status == OrderStatus.PENDING
+            if OrderLifecycleManager.can_fill(
+                order,
+            )
         ]
+
     def process_pending_orders(
         self,
         engine,
@@ -94,15 +153,21 @@ class OrderManager:
                 order.expire()
                 continue
 
-            if not order.should_fill(candle):
+            if not order.should_fill(
+                candle,
+            ):
                 continue
+
+            fill = Fill(
+                quantity=order.remaining_quantity,
+                price=order.execution_price,
+                timestamp=candle.timestamp,
+            )
 
             self.fill(
                 engine=engine,
                 order=order,
-                quantity=order.remaining_quantity,
-                price=order.execution_price,
-                timestamp=candle.timestamp,
+                fill=fill,
             )
 
             ExecutionRouter.execute(
@@ -110,19 +175,29 @@ class OrderManager:
                 order=order,
                 candle=candle,
             )
-    def cancel(self, order):
+
+    def cancel(
+        self,
+        order,
+    ):
 
         order.cancel()
 
         print(
             f"Order Cancelled : {order.side}"
         )
+
     def restore(
         self,
-        order
+        order,
     ):
 
-        self.orders.append(order)
-    def clear(self):
+        self.orders.append(
+            order,
+        )
+
+    def clear(
+        self,
+    ):
 
         self.orders.clear()

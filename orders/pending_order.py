@@ -1,29 +1,55 @@
-from abc import ABC
 from dataclasses import dataclass
-from orders.order_status import OrderStatus
-from orders.order import Order
-from orders.time_in_force import TimeInForce
 from datetime import datetime
 
+from orders.lifecycle.order_lifecycle_manager import (
+    OrderLifecycleManager,
+)
 
+from orders.lifecycle.order_state import (
+    OrderState,
+)
+
+from orders.order import (
+    Order,
+)
+
+from orders.time_in_force import (
+    TimeInForce,
+)
 
 
 @dataclass
 class PendingOrder(Order):
 
-    time_in_force: TimeInForce = TimeInForce.GTC
+    time_in_force: TimeInForce = (
+        TimeInForce.GTC
+    )
 
     expires_at: datetime | None = None
 
-    def cancel(self):
+    def cancel(
+        self,
+    ):
 
-        self.status = OrderStatus.CANCELLED
+        OrderLifecycleManager.transition(
+            self,
+            OrderState.CANCELLED,
+        )
 
-    def expire(self):
+    def expire(
+        self,
+    ):
 
-        self.status = OrderStatus.EXPIRED
+        OrderLifecycleManager.transition(
+            self,
+            OrderState.EXPIRED,
+        )
 
     @property
-    def active(self):
+    def active(
+        self,
+    ):
 
-        return self.status == OrderStatus.PENDING
+        return OrderLifecycleManager.is_active(
+            self,
+        )

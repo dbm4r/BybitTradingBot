@@ -1,0 +1,22 @@
+from enum import Enum
+
+
+class OrderState(Enum):
+
+    CREATED = "CREATED"
+
+    SUBMITTED = "SUBMITTED"
+
+    ACCEPTED = "ACCEPTED"
+
+    PARTIALLY_FILLED = "PARTIALLY_FILLED"
+
+    FILLED = "FILLED"
+
+    CANCELLED = "CANCELLED"
+
+    REJECTED = "REJECTED"
+
+    EXPIRED = "EXPIRED"
+
+    AMENDED = "AMENDED"

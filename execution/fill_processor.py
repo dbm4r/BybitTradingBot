@@ -1,6 +1,19 @@
-from portfolio.portfolio_service import PortfolioService
-from backtesting.trade import Trade
-from finance.trade_calculator import TradeCalculator
+from backtesting.trade import (
+    Trade,
+)
+
+from finance.trade_calculator import (
+    TradeCalculator,
+)
+
+from orders.models.fill import (
+    Fill,
+)
+
+from portfolio.portfolio_service import (
+    PortfolioService,
+)
+
 
 class FillProcessor:
 
@@ -16,10 +29,11 @@ class FillProcessor:
             context.decision.candle.timestamp
         )
 
-        price = context.entry_price
-
-        quantity = (
-            context.position_size.quantity
+        fill = Fill(
+            quantity=context.position_size.quantity,
+            price=context.entry_price,
+            timestamp=timestamp,
+            fee=context.fee,
         )
 
         cash_after_fee = (
@@ -35,11 +49,9 @@ class FillProcessor:
         )
 
         engine.order_manager.fill(
-            engine,
-            order,
-            quantity,
-            price,
-            timestamp,
+            engine=engine,
+            order=order,
+            fill=fill,
         )
 
         position = engine.portfolio.get_position(
@@ -49,20 +61,22 @@ class FillProcessor:
         PortfolioService.open_position(
             portfolio=engine.portfolio,
             position=position,
-            quantity=quantity,
-            price=price,
-            timestamp=timestamp,
+            quantity=fill.quantity,
+            price=fill.price,
+            timestamp=fill.timestamp,
             cash_after_fee=cash_after_fee,
             stop_price=stop_price,
             take_profit_price=take_profit_price,
         )
 
-        position_cost = quantity * price
+        position_cost = (
+            fill.quantity * fill.price
+        )
 
         print("\n========== BUY ==========")
         print(f"Symbol        : {engine.symbol}")
-        print(f"Quantity      : {quantity:.6f}")
-        print(f"Entry Price   : {price:.2f}")
+        print(f"Quantity      : {fill.quantity:.6f}")
+        print(f"Entry Price   : {fill.price:.2f}")
         print(f"Position Cost : {position_cost:.2f}")
         print(f"Cash Left     : {engine.portfolio.cash:.2f}")
         print(f"Stop Price    : {stop_price:.2f}")
@@ -75,81 +89,87 @@ class FillProcessor:
         order,
         timestamp,
         price,
-        exit_reason
+        exit_reason,
     ):
 
+        fill = Fill(
+            quantity=order.remaining_quantity,
+            price=price,
+            timestamp=timestamp,
+        )
+
         engine.order_manager.fill(
-            engine,
-            order,
-            order.remaining_quantity,
-            price,
-            timestamp
+            engine=engine,
+            order=order,
+            fill=fill,
         )
 
         position = engine.portfolio.get_position(
-            engine.symbol
+            engine.symbol,
         )
 
         gross_exit_value = TradeCalculator.exit_value(
             quantity=position.quantity,
-            exit_price=price
+            exit_price=fill.price,
         )
 
         fee = TradeCalculator.fee(
             value=gross_exit_value,
-            fee_rate=engine.settings.trading_fee
+            fee_rate=engine.settings.trading_fee,
         )
 
         cash_received = TradeCalculator.cash_received(
             exit_value=gross_exit_value,
-            fee=fee
+            fee=fee,
         )
 
         engine.total_fees += fee
 
         entry_value = TradeCalculator.entry_value(
             quantity=position.quantity,
-            entry_price=position.entry_price
+            entry_price=position.entry_price,
         )
 
         gross_profit = TradeCalculator.gross_profit(
             entry_value=entry_value,
-            exit_value=gross_exit_value
+            exit_value=gross_exit_value,
         )
 
         net_profit = TradeCalculator.net_profit(
             gross_profit=gross_profit,
-            fee=fee
+            fee=fee,
         )
 
         duration = (
-            timestamp - position.entry_time
+            fill.timestamp - position.entry_time
         ).total_seconds() / 3600
 
         trade = Trade(
             symbol=engine.symbol,
             strategy=engine.strategy.name,
             entry_time=position.entry_time,
-            exit_time=timestamp,
+            exit_time=fill.timestamp,
             entry_price=position.entry_price,
-            exit_price=price,
+            exit_price=fill.price,
             quantity=position.quantity,
             gross_profit=gross_profit,
             fees=fee,
             net_profit=net_profit,
             profit_percent=TradeCalculator.profit_percent(
                 net_profit=net_profit,
-                entry_value=entry_value
+                entry_value=entry_value,
             ),
             duration=duration,
-            exit_reason=exit_reason
+            exit_reason=exit_reason,
         )
 
-        engine.trades.append(trade)
+        engine.trades.append(
+            trade,
+        )
 
         print("\n========== SELL ==========")
         print(f"Symbol        : {engine.symbol}")
-        print(f"Exit Price    : {price:.2f}")
+        print(f"Exit Price    : {fill.price:.2f}")
         print(f"Gross Profit  : {gross_profit:.2f}")
         print(f"Fees          : {fee:.2f}")
         print(f"Net Profit    : {net_profit:.2f}")
@@ -159,5 +179,5 @@ class FillProcessor:
         PortfolioService.close_position(
             portfolio=engine.portfolio,
             position=position,
-            cash_received=cash_received
+            cash_received=cash_received,
         )
