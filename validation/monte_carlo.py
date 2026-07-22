@@ -1,7 +1,6 @@
 
 
 import random
-import statistics
 from validation.monte_carlo_result import MonteCarloResult
 class MonteCarloValidator:
 

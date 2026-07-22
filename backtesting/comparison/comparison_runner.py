@@ -2,7 +2,6 @@ from backtesting.runner.backtest_runner import BacktestRunner
 from backtesting.comparison.comparison_result import ComparisonResult
 from backtesting.performance.statistics import Statistics
 from backtesting.performance.risk_metrics import RiskMetrics
-from backtesting.performance.equity_curve import EquityCurve
 
 
 class ComparisonRunner:

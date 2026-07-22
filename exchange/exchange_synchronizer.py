@@ -21,7 +21,6 @@ class ExchangeSynchronizer:
         balance = snapshot.balance
         positions = snapshot.positions
         orders = snapshot.orders
-        trades = snapshot.trades
 
         self.engine.portfolio.cash = (
             balance.available_balance

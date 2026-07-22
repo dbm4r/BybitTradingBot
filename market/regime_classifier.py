@@ -1,7 +1,6 @@
 from models.candle_series import CandleSeries
 from market.volatility_detector import VolatilityDetector
 from market.liquidity_detector import LiquidityDetector
-from market.market_regime import MarketRegime
 from market.trend_detector import TrendDetector
 from market.regime_result import RegimeResult
 

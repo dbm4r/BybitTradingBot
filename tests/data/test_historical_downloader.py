@@ -17,9 +17,6 @@ from data.models.download_request import (
     DownloadRequest,
 )
 
-from data.models.download_result import (
-    DownloadResult,
-)
 
 from data.storage.csv_storage import (
     CsvStorage,

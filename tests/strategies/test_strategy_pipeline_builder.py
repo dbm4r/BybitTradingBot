@@ -1,5 +1,4 @@
 from strategies.framework.base_strategy import BaseStrategy
-from strategies.framework.signal_type import SignalType
 from strategies.framework.strategy_decision import StrategyDecision
 
 from strategies.pipeline.strategy_pipeline_builder import (

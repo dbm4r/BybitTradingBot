@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from orders.pending_order import PendingOrder
 
 
 @dataclass

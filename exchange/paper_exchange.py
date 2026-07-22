@@ -1,5 +1,4 @@
 from uuid import uuid4
-from exchange.exchange_symbol import ExchangeSymbol
 from exchange.exchange import Exchange
 from exchange.exchange_order import ExchangeOrder
 from exchange.exchange_result import ExchangeResult

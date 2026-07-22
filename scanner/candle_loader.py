@@ -1,4 +1,3 @@
-from models.candle import Candle
 from models.candle_series import CandleSeries
 from bybit.parsers.candle_parser import CandleParser
 

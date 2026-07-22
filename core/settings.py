@@ -10,7 +10,7 @@ from data.cache.cache_type import (
 from data.storage.storage_type import (
     StorageType,
 )
-
+load_dotenv()
 @dataclass
 class Settings:
 

@@ -1,7 +1,6 @@
 from backtesting.portfolio import Portfolio
 from backtesting.execution_manager import ExecutionManager
 from backtesting.performance.statistics import Statistics
-from core.settings import Settings
 from backtesting.performance.equity_curve import EquityCurve
 from backtesting.performance.risk_metrics import RiskMetrics
 from market.candle_factory import CandleFactory

@@ -1,9 +1,6 @@
 from risk.framework.base_risk_rule import (
     BaseRiskRule,
 )
-from risk.framework.risk_rule_result import (
-    RiskRuleResult,
-)
 from risk.models.risk_context import (
     RiskContext,
 )

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from exchange.exchange_symbol import ExchangeSymbol
 
 class Exchange(ABC):
 

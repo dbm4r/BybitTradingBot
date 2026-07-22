@@ -2,7 +2,6 @@ from exceptions.authentication_error import AuthenticationError
 from exceptions.insufficient_balance_error import (
     InsufficientBalanceError,
 )
-from exceptions.network_error import NetworkError
 from exceptions.order_not_found_error import (
     OrderNotFoundError,
 )

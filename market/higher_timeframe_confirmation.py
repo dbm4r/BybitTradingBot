@@ -1,4 +1,3 @@
-from market.timeframe import Timeframe
 from market.trend_detector import TrendDetector
 from market.market_regime import MarketRegime
 

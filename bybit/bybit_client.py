@@ -1,4 +1,3 @@
-import json
 
 from config import BYBIT_TESTNET
 

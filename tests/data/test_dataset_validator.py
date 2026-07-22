@@ -3,9 +3,6 @@ from datetime import datetime
 
 import pandas as pd
 
-from data.metadata.dataset_metadata import (
-    DatasetMetadata,
-)
 
 from data.validation.dataset_validator import (
     DatasetValidator,
