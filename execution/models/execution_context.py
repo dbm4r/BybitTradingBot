@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from datetime import datetime
+
 from backtesting.portfolio import (
     Portfolio,
 )
@@ -10,6 +12,10 @@ from exchange.exchange_result import (
 
 from execution.models.execution_decision import (
     ExecutionDecision,
+)
+
+from execution.models.execution_type import (
+    ExecutionType,
 )
 
 from orders.order import (
@@ -23,16 +29,23 @@ from risk.models.position_size import (
 from strategies.framework.strategy_decision import (
     StrategyDecision,
 )
-from datetime import datetime
 
-@dataclass(slots=True)
+
+@dataclass(
+    slots=True,
+    kw_only=True,
+)
 class ExecutionContext:
 
     # ------------------------------------------
     # Input
     # ------------------------------------------
 
-    decision: StrategyDecision
+    execution_type: ExecutionType = (
+        ExecutionType.ENTRY
+    )
+
+    decision: StrategyDecision | None
 
     portfolio: Portfolio
 
@@ -71,6 +84,7 @@ class ExecutionContext:
     order: Order | None = None
 
     exchange_result: ExchangeResult | None = None
+
     timestamp: datetime | None = None
 
     exit_reason: str | None = None

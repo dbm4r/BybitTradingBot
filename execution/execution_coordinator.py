@@ -2,14 +2,6 @@ from execution.fill_processor import (
     FillProcessor,
 )
 
-from execution.services.exit_order_request_factory import (
-    ExitOrderRequestFactory,
-)
-
-from execution.services.order_submission_service import (
-    OrderSubmissionService,
-)
-
 
 class ExecutionCoordinator:
 
@@ -32,47 +24,32 @@ class ExecutionCoordinator:
             engine=engine,
             context=context,
         )
-
     @staticmethod
     def process_exit(
         engine,
         context,
     ):
 
-        order = ExitOrderRequestFactory.create(
-            engine=engine,
-            context=context,
-            timestamp=context.timestamp,
-        )
-
-        exchange_result = (
-            OrderSubmissionService.submit(
-                engine=engine,
-                order=order,
-            )
-        )
-
         ExecutionCoordinator._validate_exchange_result(
-            exchange_result,
+            context.exchange_result,
         )
 
         ExecutionCoordinator._assign_exchange_order_id(
-            order=order,
-            exchange_result=exchange_result,
+            order=context.order,
+            exchange_result=context.exchange_result,
         )
 
         engine.execution_state.register_pending_order(
-            order,
+            context.order,
         )
 
         FillProcessor.process_exit_fill(
             engine=engine,
-            order=order,
+            order=context.order,
             timestamp=context.timestamp,
             price=context.entry_price,
             exit_reason=context.exit_reason,
         )
-
     @staticmethod
     def _validate_exchange_result(
         exchange_result,

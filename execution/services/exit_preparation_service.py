@@ -2,6 +2,10 @@ from execution.models.execution_context import (
     ExecutionContext,
 )
 
+from execution.models.execution_type import (
+    ExecutionType,
+)
+
 from finance.slippage_calculator import (
     SlippageCalculator,
 )
@@ -35,6 +39,7 @@ class ExitPreparationService:
         )
 
         return ExecutionContext(
+            execution_type=ExecutionType.EXIT,
             decision=None,
             portfolio=engine.portfolio.portfolio,
             available_capital=engine.portfolio.cash,
@@ -49,7 +54,9 @@ class ExitPreparationService:
             stop_price=exit_price,
             take_profit_price=exit_price,
             fee=0.0,
-            slippage=engine.settings.slippage_percent,
+            slippage=(
+                engine.settings.slippage_percent
+            ),
             timestamp=timestamp,
             exit_reason=exit_reason,
         )

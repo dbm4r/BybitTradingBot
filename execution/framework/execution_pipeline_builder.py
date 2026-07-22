@@ -21,6 +21,9 @@ from execution.framework.stages.submission_stage import (
 from execution.framework.stages.fill_stage import (
     FillStage,
 )
+from execution.framework.stages.exit_order_creation_stage import (
+    ExitOrderCreationStage,
+)
 
 
 class ExecutionPipelineBuilder:
@@ -41,6 +44,7 @@ class ExecutionPipelineBuilder:
         )
 
         return self
+
     def default_entry_pipeline(
         self,
     ):
@@ -54,6 +58,22 @@ class ExecutionPipelineBuilder:
             )
             .add_stage(
                 OrderCreationStage(),
+            )
+            .add_stage(
+                SubmissionStage(),
+            )
+            .add_stage(
+                FillStage(),
+            )
+        )
+
+    def default_exit_pipeline(
+        self,
+    ):
+
+        return (
+            self.add_stage(
+                ExitOrderCreationStage(),
             )
             .add_stage(
                 SubmissionStage(),

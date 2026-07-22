@@ -1,9 +1,13 @@
+from execution.execution_coordinator import (
+    ExecutionCoordinator,
+)
+
 from execution.framework.base_executor import (
     BaseExecutor,
 )
 
-from execution.execution_coordinator import (
-    ExecutionCoordinator,
+from execution.models.execution_type import (
+    ExecutionType,
 )
 
 
@@ -17,9 +21,21 @@ class FillStage(
         context,
     ):
 
-        ExecutionCoordinator.process_entry(
-            engine=engine,
-            context=context,
-        )
+        if (
+            context.execution_type
+            is ExecutionType.ENTRY
+        ):
+
+            ExecutionCoordinator.process_entry(
+                engine=engine,
+                context=context,
+            )
+
+        else:
+
+            ExecutionCoordinator.process_exit(
+                engine=engine,
+                context=context,
+            )
 
         return context

@@ -2,6 +2,10 @@ from execution.models.execution_context import (
     ExecutionContext,
 )
 
+from execution.models.execution_type import (
+    ExecutionType,
+)
+
 from finance.slippage_calculator import (
     SlippageCalculator,
 )
@@ -72,6 +76,7 @@ class EntryPreparationService:
         )
 
         return ExecutionContext(
+            execution_type=ExecutionType.ENTRY,
             decision=decision,
             portfolio=engine.portfolio.portfolio,
             available_capital=available_capital,

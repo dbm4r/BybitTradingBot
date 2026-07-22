@@ -2,8 +2,8 @@ from engine.engine_state import (
     EngineState,
 )
 
-from execution.execution_coordinator import (
-    ExecutionCoordinator,
+from execution.framework.execution_pipeline_builder import (
+    ExecutionPipelineBuilder,
 )
 
 from execution.services.exit_preparation_service import (
@@ -34,7 +34,13 @@ class ExitExecutor:
             )
         )
 
-        ExecutionCoordinator.process_exit(
+        pipeline = (
+            ExecutionPipelineBuilder()
+            .default_exit_pipeline()
+            .build()
+        )
+
+        pipeline.execute(
             engine=engine,
             context=context,
         )
