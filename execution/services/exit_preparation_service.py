@@ -49,7 +49,7 @@ class ExitPreparationService:
             stop_price=exit_price,
             take_profit_price=exit_price,
             fee=0.0,
-            slippage=(
-                engine.settings.slippage_percent
-            ),
+            slippage=engine.settings.slippage_percent,
+            timestamp=timestamp,
+            exit_reason=exit_reason,
         )

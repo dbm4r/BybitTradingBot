@@ -10,14 +10,6 @@ from execution.services.exit_preparation_service import (
     ExitPreparationService,
 )
 
-from execution.services.exit_order_request_factory import (
-    ExitOrderRequestFactory,
-)
-
-from execution.services.order_submission_service import (
-    OrderSubmissionService,
-)
-
 
 class ExitExecutor:
 
@@ -30,7 +22,7 @@ class ExitExecutor:
     ):
 
         engine.state.set_state(
-            EngineState.EXITING_POSITION
+            EngineState.EXITING_POSITION,
         )
 
         context = (
@@ -42,30 +34,11 @@ class ExitExecutor:
             )
         )
 
-        order = (
-            ExitOrderRequestFactory.create(
-                engine=engine,
-                context=context,
-                timestamp=timestamp,
-            )
-        )
-
-        result = (
-            OrderSubmissionService.submit(
-                engine=engine,
-                order=order,
-            )
-        )
-
         ExecutionCoordinator.process_exit(
             engine=engine,
-            order=order,
-            exchange_result=result,
-            timestamp=timestamp,
-            price=context.entry_price,
-            exit_reason=exit_reason,
+            context=context,
         )
 
         engine.state.set_state(
-            EngineState.READY
+            EngineState.READY,
         )

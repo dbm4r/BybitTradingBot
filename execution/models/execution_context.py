@@ -23,7 +23,7 @@ from risk.models.position_size import (
 from strategies.framework.strategy_decision import (
     StrategyDecision,
 )
-
+from datetime import datetime
 
 @dataclass(slots=True)
 class ExecutionContext:
@@ -71,6 +71,9 @@ class ExecutionContext:
     order: Order | None = None
 
     exchange_result: ExchangeResult | None = None
+    timestamp: datetime | None = None
+
+    exit_reason: str | None = None
 
     continue_execution: bool = True
 

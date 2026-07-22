@@ -1,4 +1,15 @@
-from execution.fill_processor import FillProcessor
+from execution.fill_processor import (
+    FillProcessor,
+)
+
+from execution.services.exit_order_request_factory import (
+    ExitOrderRequestFactory,
+)
+
+from execution.services.order_submission_service import (
+    OrderSubmissionService,
+)
+
 
 class ExecutionCoordinator:
 
@@ -8,13 +19,13 @@ class ExecutionCoordinator:
         context,
     ):
 
-        if not context.exchange_result.success:
-            raise RuntimeError(
-                context.exchange_result.error
-            )
+        ExecutionCoordinator._validate_exchange_result(
+            context.exchange_result,
+        )
 
-        context.order.exchange_order_id = (
-            context.exchange_result.order.order_id
+        ExecutionCoordinator._assign_exchange_order_id(
+            order=context.order,
+            exchange_result=context.exchange_result,
         )
 
         FillProcessor.process_entry_fill(
@@ -25,21 +36,31 @@ class ExecutionCoordinator:
     @staticmethod
     def process_exit(
         engine,
-        order,
-        exchange_result,
-        timestamp,
-        price,
-        exit_reason
+        context,
     ):
 
-        if not exchange_result.success:
-            raise RuntimeError(
-                exchange_result.error
-            )
-
-        order.exchange_order_id = (
-            exchange_result.order.order_id
+        order = ExitOrderRequestFactory.create(
+            engine=engine,
+            context=context,
+            timestamp=context.timestamp,
         )
+
+        exchange_result = (
+            OrderSubmissionService.submit(
+                engine=engine,
+                order=order,
+            )
+        )
+
+        ExecutionCoordinator._validate_exchange_result(
+            exchange_result,
+        )
+
+        ExecutionCoordinator._assign_exchange_order_id(
+            order=order,
+            exchange_result=exchange_result,
+        )
+
         engine.execution_state.pending_orders[
             order.exchange_order_id
         ] = order
@@ -47,7 +68,28 @@ class ExecutionCoordinator:
         FillProcessor.process_exit_fill(
             engine=engine,
             order=order,
-            timestamp=timestamp,
-            price=price,
-            exit_reason=exit_reason
+            timestamp=context.timestamp,
+            price=context.entry_price,
+            exit_reason=context.exit_reason,
+        )
+
+    @staticmethod
+    def _validate_exchange_result(
+        exchange_result,
+    ):
+
+        if not exchange_result.success:
+
+            raise RuntimeError(
+                exchange_result.error,
+            )
+
+    @staticmethod
+    def _assign_exchange_order_id(
+        order,
+        exchange_result,
+    ):
+
+        order.exchange_order_id = (
+            exchange_result.order.order_id
         )
