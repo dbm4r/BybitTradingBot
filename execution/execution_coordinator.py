@@ -61,9 +61,9 @@ class ExecutionCoordinator:
             exchange_result=exchange_result,
         )
 
-        engine.execution_state.pending_orders[
-            order.exchange_order_id
-        ] = order
+        engine.execution_state.register_pending_order(
+            order,
+        )
 
         FillProcessor.process_exit_fill(
             engine=engine,
