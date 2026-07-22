@@ -67,17 +67,6 @@ class MonteCarloValidator:
             )
 
         return self.results
-    def _calculate_statistics(self):
-
-        rois = [
-            result.roi
-            for result in self.results
-        ]
-
-        drawdowns = [
-            result.max_drawdown
-            for result in self.results
-        ]
 
     def clear(self):
 
