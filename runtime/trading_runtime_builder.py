@@ -11,7 +11,9 @@ from scanner.universe import SymbolUniverse
 from scanner.symbol_analyzer import SymbolAnalyzer
 from portfolio.portfolio_manager import PortfolioManager
 from execution.execution_coordinator import ExecutionCoordinator
-
+from runtime.cycle.framework.trading_cycle_pipeline_builder import (
+    TradingCyclePipelineBuilder,
+)
 
 class TradingRuntimeBuilder:
 
@@ -236,8 +238,15 @@ class TradingRuntimeBuilder:
         self,
     ) -> TradingCycle:
 
+        pipeline = (
+            TradingCyclePipelineBuilder()
+            .default_pipeline()
+            .build()
+        )
+
         return TradingCycle(
             context=self.build_context(),
+            pipeline=pipeline,
         )
 
     def build(
